@@ -1230,15 +1230,46 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 			//puxar peça
 		}
 
-		//descolorir peças possíveis
+		//Descolore peças possíveis
 		pecaPossivel=null;
 		indicesPecasPossiveis=null;
+		
+		//Atualiza as novas cores da peça desse jogador 
+		colorePecasPossiveis();
 
 		return pecaAEnviar;
 	}
 
 	public void puxaUmaPeca(PecaDomino p) throws RemoteException {
-		pecasJogador.add(p);
+		////pecasJogador.add(p);
+		
+		
+		//Recebe uma nova Peça
+		////PecaDomino pecaPuxada=(PecaDomino)recObjeto.readObject();
+
+		PecaDomino pecaPuxada=p;
+
+		System.out.println("Cliente: "+nomeJogador+" recebeu esta Peça puxando: "+ pecaPuxada.getLadoEsquerdo()+"|"+pecaPuxada.getLadoDireito());
+		//Volta para o canal que recebe String
+		////dadosRecebidos = new DataInputStream(socket.getInputStream());
+
+		//Adiciona a peça que foi puxada ou comprada na lista de peças do jogador
+		pecasJogador.add(pecaPuxada);
+		//Aumenta o tamanho do scroll das peças dos jogadores
+		desenhoPecasDoJogador.setPreferredSize(new Dimension (100+90*pecasJogador.size(), 210));
+
+		//Desenha a nova peça no JPanel
+		desenhoPecasDoJogador.repaint();
+
+		desenhoDasPecasDaMesa.repaint();
+
+		painelDeConteudo.repaint();
+
+		frame.validate();
+
+		////enviarMsg("Comprei uma peça.");
+
+		serv.enviaATodosClientes(nomeJogador+": Comprei uma peça.");
 	}
 
 	public void atualizaGUI(ArrayList <PecaDomino> pecaDaMesaLocal) throws RemoteException {
