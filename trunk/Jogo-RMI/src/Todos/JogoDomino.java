@@ -77,7 +77,9 @@ public class JogoDomino extends Thread implements Serializable{
 						InterfaceDoCliente cli;
 						try {
 							cli = (InterfaceDoCliente)Naming.lookup("//localhost/"+nomeJ);
-							cli.recebe7Pecas(domino.pecasDeUmJogador());
+							ArrayList<PecaDomino> pec=domino.pecasDeUmJogador();
+							cli.recebe7Pecas(pec);
+							referenciaDoServidor.listaDeUsuarios.get(j).pecasJogador=pec;
 							cli.recebeMensagemDoChat("Recebi minhas peças.");
 						} catch (MalformedURLException e) {
 							// TODO Auto-generated catch block
@@ -150,7 +152,7 @@ public class JogoDomino extends Thread implements Serializable{
 					System.out.println("\n**Primeira Jogada**\n");
 
 					//ordenar primeiro jogador					
-					////primeiroJogador();
+					primeiroJogador();
 
 					//retira o primeiro jogador da lista e coloca no final
 					TrataCliente jogadorAtual=referenciaDoServidor.listaDeUsuarios.get(0);

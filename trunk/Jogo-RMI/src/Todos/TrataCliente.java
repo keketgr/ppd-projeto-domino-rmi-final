@@ -25,7 +25,7 @@ public class TrataCliente extends Thread implements Serializable{
 	Boolean prontoParaJogar=false;
 
 	//Peças do jogador
-	private ArrayList <PecaDomino> pecasJogador;
+	public ArrayList <PecaDomino> pecasJogador;
 
 	//nome do cliente tratado
 	////int nomeCliente;
