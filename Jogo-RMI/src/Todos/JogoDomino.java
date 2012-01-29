@@ -236,7 +236,7 @@ public class JogoDomino extends Thread implements Serializable{
 						System.out.println("Acabou de puxar ou não.");
 						
 						//não tem peça pra puxar
-						if(domino.todasPecas.size()==0){
+						if(p1==null&&domino.todasPecas.size()==0){
 							System.out.println(jogadorAtual.nomeUsuario+" passou sua vez");
 							jogadorAtual.passouVez=true;
 							jogadorAtualJogou=true;
@@ -290,18 +290,18 @@ public class JogoDomino extends Thread implements Serializable{
 							try {
 								InterfaceDoCliente cli = (InterfaceDoCliente)Naming.lookup("//localhost/"+referenciaDoServidor.listaDeNomeUsuarios.get(i));
 								referenciaDoServidor.listaDeUsuarios.get(i).somaDasPecasAposJogoTrancado=cli.jogoTrancado();
+								referenciaDoServidor.listaDeUsuarios.get(i).atualizouTrancado=true;
 							} catch (MalformedURLException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							} catch (RemoteException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							} catch (NotBoundException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						}
-
+						
+						System.out.println("Verificará quem tem menor somatório");
+						
 						//Verifica quem tem o menor somatório
 						//falta tratrar quando tiver 2 ou mais ganhadores
 						Boolean atu=false;
@@ -320,13 +320,17 @@ public class JogoDomino extends Thread implements Serializable{
 								}
 							}
 						}
-
+						
+						System.out.println("Verificou quem tem menor somatório e irá dizer quem ganhou");
+						
 						try {
 							referenciaDoServidor.enviaATodosClientes(referenciaDoServidor.listaDeUsuarios.get(quemGanhouJogo).nomeUsuario+
 									" ganhou jogo, pois ele só possui o somatório de "+
 									referenciaDoServidor.listaDeUsuarios.get(quemGanhouJogo).somaDasPecasAposJogoTrancado);
+							
+							//Fim do jogo
+							referenciaDoServidor.fimDoJogo=true;
 						} catch (RemoteException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 
@@ -336,9 +340,9 @@ public class JogoDomino extends Thread implements Serializable{
 						//								referenciaDoServidor.listaDeUsuarios.get(quemGanhouJogo).somaDasPecasAposJogoTrancado);
 
 						//contar quantas peças cada um tem para dá o resultado
-						while(true){
-
-						}
+//						while(true){
+//
+//						}
 					}//fim jogo trancado
 
 				}//Outras jogadas após o 1 jogador
