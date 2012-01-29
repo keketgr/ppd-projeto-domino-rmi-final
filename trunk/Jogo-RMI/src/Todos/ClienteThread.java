@@ -63,7 +63,7 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 	private ArrayList <PecaDomino> pecasDaMesa;
 
 	//Classe que tem função de desenhar as peças do jogador
-	GuiDesenhaDomino desenhoPecasDoJogador;
+	GuiDesenhaDomino desenhoPecasDoJogador = new GuiDesenhaDomino(pecasJogador);
 	//Barra de rolagem das peças no centro da mesa
 	JScrollPane painelPecasDoJogador;
 
@@ -754,7 +754,7 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 	//Mostra as peças deste jogador
 	void mostrarPecas(){
-		System.out.println("ClienteThread: Domino jogador "+nomeJogador);
+		System.out.println("ClienteThread: Domino d "+nomeJogador);
 		//mostrar as peças de um jogador
 		for(int i=0; i<pecasJogador.size(); i++){
 			System.out.println("ClienteThread: "+pecasJogador.get(i).getLadoEsquerdo()+"|"+pecasJogador.get(i).getLadoDireito());
@@ -882,7 +882,7 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		System.out.println("ClienteThread: X: "+e.getX()+", Y: "+e.getY());
 
 		//depois de achar a peça enviar ao servidor
-		int horizontal = painelPecasDoJogador.getHorizontalScrollBar().getModel().getValue(); 
+		int horizontal = this.painelPecasDoJogador.getHorizontalScrollBar().getModel().getValue(); 
 		for(int n=1;n<=pecasJogador.size();n++){
 			if(e.getX()+horizontal>(10+90*(n-1))&&e.getX()+horizontal<(90*n)&&e.getY()>10&&e.getY()<130){
 				//JOptionPane.showMessageDialog(null,"Clicou peça "+n);
@@ -999,9 +999,16 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 		System.out.println("Cliente: Recebeu a lista com as peças");
 		//Atualiza os valores reais das peças deste jogador
-		pecasJogador=(ArrayList<PecaDomino>)pecas;
+		this.pecasJogador=null;
+		this.pecasJogador=pecas;
+		pecaPossivel=null;
+		desenhoPecasDoJogador = new GuiDesenhaDomino(pecasJogador);
+		
 		System.out.println("Cliente: Atualizou as peças do Jogador");
 
+		//Coloquei depois
+		mostrarPecas();
+		
 		System.out.println("Cliente: "+nomeJogador+" recebeu seu domino");
 		System.out.println("Cliente: "+pecas.size());
 
@@ -1011,7 +1018,7 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		}
 
 		//Adiciona a parte das peças do jogador no Frame
-		desenhoPecasDoJogador=new GuiDesenhaDomino(pecasJogador);
+		this.desenhoPecasDoJogador=new GuiDesenhaDomino(this.pecasJogador);
 
 		nomePecas = new JLabel("Minhas Peças: ");
 		nomePecas.setBounds(0,420,150,30);
