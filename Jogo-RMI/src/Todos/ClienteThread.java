@@ -819,15 +819,15 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 			jogar.setEnabled(false);
 			////enviarMsg("Estou pronto para receber peças!");
 			try {
-				serv.enviaATodosClientes("Estou pronto para receber peças!");
+				serv.enviaATodosClientes(nomeJogador+" está pronto para receber peças!");
 				serv.prontoParaJogar(true,nomeJogador);
 			} catch (RemoteException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 
-			areadetexto.append("Estou pronto para receber peças!\n");
-			areadetexto.setCaretPosition(areadetexto.getText().length());
+			//areadetexto.append("Estou pronto para receber peças!\n");
+			//areadetexto.setCaretPosition(areadetexto.getText().length());
 		}
 
 		//enviar mensagem aos outros jogadores
