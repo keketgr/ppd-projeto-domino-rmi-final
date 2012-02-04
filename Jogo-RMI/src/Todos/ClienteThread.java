@@ -894,10 +894,10 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 					pecasJogador.get(pecaSelecionada).corPeca=Color.red;
 				}
 
-				desenhoDasPecasDaMesa.repaint();
-				desenhoPecasDoJogador.repaint();
+				//desenhoDasPecasDaMesa.repaint();
+				//desenhoPecasDoJogador.repaint();
 
-				painelDeConteudo.repaint();
+				//painelDeConteudo.repaint();
 
 			}
 		}
@@ -1332,6 +1332,15 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 	@Override
 	public void servidorLotador(Boolean a) throws RemoteException {
 		servidorLotado=a;		
+	}
+
+	@Override
+	public void removerTodasPecasJogador() throws RemoteException {
+
+		while( pecasJogador.size()>0) {
+			pecasJogador.remove(0);
+		}
+		
 	}
 
 }

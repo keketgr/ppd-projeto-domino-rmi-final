@@ -48,5 +48,7 @@ public interface InterfaceDoCliente extends Remote{
 	int jogoTrancado() throws RemoteException;
 
 	void servidorLotador(Boolean a) throws RemoteException;
+	
+	void removerTodasPecasJogador() throws RemoteException;
 
 }

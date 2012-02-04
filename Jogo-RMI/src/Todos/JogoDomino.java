@@ -387,14 +387,15 @@ public class JogoDomino extends Thread implements Serializable{
 				tr.passouVez=false;
 				tr.prontoParaJogar=false;
 				tr.atualizouTrancado=false;
-				tr.pecasJogador=new ArrayList<PecaDomino>();
+				//tr.pecasJogador=new ArrayList<PecaDomino>();
 
 				//Envia um sinal para habilitar o botão de pronto
 				//referenciaDoServidor.listaDeUsuarios.get(i).enviarMensagem("Habilita botão de pronto");
 				InterfaceDoCliente cli;
-				
+
 				try {
 					cli = (InterfaceDoCliente)Naming.lookup("//localhost/"+referenciaDoServidor.listaDeNomeUsuarios.get(i));
+					cli.removerTodasPecasJogador();
 					//Habilita o checkbox para uma nova rodada
 					cli.habilitaPronto();
 					//Apaga a mesa do cliente
