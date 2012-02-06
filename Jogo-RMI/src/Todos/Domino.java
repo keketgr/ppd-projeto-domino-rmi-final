@@ -8,7 +8,7 @@ public class Domino {
 	ArrayList <PecaDomino> todasPecas=new ArrayList <PecaDomino>();
 
 	public  Domino() {
-		//criando todas as peças do jogo
+		//Cria todas as peças do jogo
 		todasPecas.add(new PecaDomino(0, 0));	//01
 		todasPecas.add(new PecaDomino(0, 1));	//02
 		todasPecas.add(new PecaDomino(0, 2));	//03
@@ -40,13 +40,13 @@ public class Domino {
 
 	}
 
-	//sorteio de peças para 1 jogador
+	//Sorteia as peças para 1 jogador
 	public ArrayList pecasDeUmJogador(){
 		//peças  deste jogador
 		ArrayList <PecaDomino> pecaDoJogador=new ArrayList <PecaDomino>();
 		int indice;
 
-		//dar 7 peças a um jogador
+		//dá as 7 peças a um jogador
 		for(int i=0;i<3;i++){
 			//sorteio de uma peça do jogador, ou seja, o indice dela na lista
 			indice=(int) (Math.random() * todasPecas.size());
@@ -57,8 +57,7 @@ public class Domino {
 		return pecaDoJogador;
 	}
 
-	//puxar uma peça das que sobraram
-
+	//Compra uma peça das que sobraram
 	public PecaDomino puxarUmaPeca(){
 
 		double numeroDePecas =todasPecas.size();

@@ -7,15 +7,16 @@ public class PecaDomino implements Serializable {
 	//Cor que deve pintar a peça	
 	public Color corPeca;
 
+	//Valores dos lados desta peça
 	private int ladoDireito;
 	private int ladoEsquerdo;
-	
+
 	public PecaDomino(int direita, int esquerda){
 		corPeca=Color.black;
 		this.ladoDireito=direita;
 		this.ladoEsquerdo=esquerda;
 	}
-	
+
 	public int getLadoDireito() {
 		return ladoDireito;
 	}

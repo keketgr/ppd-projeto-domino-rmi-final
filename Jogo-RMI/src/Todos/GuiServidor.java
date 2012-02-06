@@ -17,6 +17,7 @@ import javax.swing.JTextArea;
 
 
 public class GuiServidor implements ActionListener {
+
 	JFrame frame;
 	Container painelDeConteudo;
 	JMenuItem autores;
@@ -26,13 +27,13 @@ public class GuiServidor implements ActionListener {
 	JTextArea areadetexto;
 
 	public GuiServidor() {
-		//Criar e configurar a janela
+		//Cria e configura a janela do Servidor
 		frame = new JFrame("Servidor");
 		frame.setSize(400, 300);
-		//não redimensionar
+		//Não redimensionar
 		frame.setResizable(false);
 
-		//para fechar o programa quado fechar a GUI
+		//Para fechar o programa quado fechar a GUI
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		frame.setLayout(null);
@@ -65,7 +66,7 @@ public class GuiServidor implements ActionListener {
 		label.setBounds(0,22,100,30);
 		painelDeConteudo.add(label);
 
-		//campo que contém as mensagens enviadas e recebidas
+		//Campo que contém as mensagens enviadas e recebidas
 		areadetexto=new JTextArea();
 		areadetexto.setEditable(false);//não deixar escrever onde as mensagens do chat chegam	
 		JScrollPane ps2 = new JScrollPane(areadetexto);
@@ -76,26 +77,29 @@ public class GuiServidor implements ActionListener {
 		frame.setVisible(true);	
 	}
 
+	//Escreve no TextArea da GUI do Servidor
 	public void escreverNoTexto(String msg){
 		areadetexto.append(msg+"\n");
 		areadetexto.setCaretPosition(areadetexto.getText().length());
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		//fechar o jogo e conexão com o servidor
+		//Fecha o jogo e conexão com o servidor
 		if(e.getSource()==itemSair){
 			System.exit(1);  
 		}
 
-		//mostrar o nome dos autores do Jogo
+		//Mostra o nome dos autores do Jogo
 		if(e.getSource() == autores){
 			JOptionPane.showMessageDialog(null,"Wandemberg Rodrigues Gomes");
 		}				
 	}
 
 	public static void main(String[] args) {
+		//Cria a parte gráfica do Servidor
 		GuiServidor parteGrafica=new GuiServidor();
 
+		//Cria a parte lógica do Servidor 
 		Thread servidor;
 		try {
 			servidor = new Thread(new ServidorThread(parteGrafica));
@@ -103,7 +107,7 @@ public class GuiServidor implements ActionListener {
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 

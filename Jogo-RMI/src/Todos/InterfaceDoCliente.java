@@ -11,7 +11,7 @@ import Todos.PecaDomino;
 public interface InterfaceDoCliente extends Remote{
 
 	//Retorna as peças da mão do jogador
-	ArrayList<PecaDomino> pecasJogador() throws RemoteException;
+	//ArrayList<PecaDomino> pecasJogador() throws RemoteException;
 
 	//Recebe uma String do Servidor
 	void recebeString(String a)throws RemoteException;
@@ -23,10 +23,10 @@ public interface InterfaceDoCliente extends Remote{
 	void recebeUmaPeca(PecaDomino p)throws RemoteException;
 
 	//Recebe uma ArrayList de Peças do Servidor
-	void recebeListaDePecas(ArrayList<PecaDomino> pecas) throws RemoteException;
+	//void recebeListaDePecas(ArrayList<PecaDomino> pecas) throws RemoteException;
 
 	//Recebe um Object do servidor
-	void recebeObject(Object o) throws  RemoteException;
+	//void recebeObject(Object o) throws  RemoteException;
 
 	//Recebe uma ArrayList de Peças do Servidor, ou seja, peças iniciais
 	void recebe7Pecas(ArrayList<PecaDomino> pecas) throws RemoteException;
