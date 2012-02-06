@@ -10,22 +10,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -34,7 +27,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -42,21 +34,14 @@ import javax.swing.JTextField;
 
 
 public class ClienteThread extends UnicastRemoteObject implements Runnable, InterfaceDoCliente, ActionListener, MouseListener, Serializable{
-	//IP do servidor
 	////Nome do servidor que quer se conectar
 	String nomeServidor;
-
-	//Porta que o servidor está usando
-	////int portaUtilizada;
 
 	//Lado que o jogador clicou para colocar peça
 	String ladoAJogar="";
 
 	//Peça selecionada pelo mouse
 	int pecaSelecionada=-1;
-
-	//Indica se deve adicionar a mensagem no textArea
-	////Boolean mostrarTexto=true;
 
 	//Peças do jogador, ou seja, peças que podem ser utilizadas durante o jogo
 	private ArrayList <PecaDomino> pecasJogador;
@@ -76,13 +61,6 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 	//Dados de entrada recebidos no teclado
 	String teclado = "";
 
-	//Cria um socket conectado ao servidor
-	////Socket socket=null;
-
-	//Stream que envia as Strings
-	////DataOutputStream dadosEnviados=null;
-	//Stream que receb as Strings
-	////DataInputStream dadosRecebidos=null;
 	//----------------------------------
 	JFrame frame;
 	Container painelDeConteudo ;	
@@ -98,15 +76,11 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 	private JLabel confirmar;
 	private JLabel nomePecas; //texto MINHAS PEÇAS 
 
+	//Nome que irá registrar caso não escolha nada no JOptionPanel
 	String nomeJogador="Jogador1";
 
-	//para receber Objetos
-	//Stream que recebe Objetos
-	////ObjectInputStream recObjeto;
-	//Stream que envia Objetos
-	////ObjectOutputStream envObjeto;
-
-	Boolean enviarPrimeiraPeca =false;
+	//Indica se esse jogador irá enviar a 1 peça
+	//Boolean enviarPrimeiraPeca =false;
 
 	//Marca quais peças podem ser utilizadas em um array de Boolean
 	Boolean [] indicesPecasPossiveis;
@@ -117,11 +91,12 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 	//Comunicação com servidor
 	InterfaceDoServidor serv;
 
+	//Indica se o servidor já está lotado
 	Boolean servidorLotado=false;
 
-	//Pontuação do jogador
+	//Pontuação dos jogadores 
 	Pontuacao pontucaoJogadoresDoJogo;
-	
+
 	public ClienteThread() throws RemoteException{
 
 		super();
@@ -134,31 +109,25 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		nomeJogador=JOptionPane.showInputDialog("Escolha o nome do usuário","jogador");
 		//Coloca os valores do ip e porta do servidor que irá conectar
 		nomeServidor=JOptionPane.showInputDialog("Escolha o nome do servidor","Servidor");
-		////portaUtilizada=Integer.parseInt(JOptionPane.showInputDialog("Escolha o Porta do servidor","5080"));
 
-		//Cria o socket, ou seja, faz a conexão com o servidor
 		try {
-			//criando a conexão com o servidor
-			////socket = new Socket (ipServidor, portaUtilizada);
+
 
 			System.out.println("Registrara o cliente.");
+			//Registra o Jogador no servidor de nomes
 			Naming.rebind(nomeJogador,(Remote) this);
 			System.out.println("Cliente Registrado!");
 
+			//Busca o servidor que deseja se conectar
 			serv =  (InterfaceDoServidor)Naming.lookup("//localhost/"+nomeServidor);
-
 
 			//Método que cria a interface gráfica do jogador
 			criarGUI();
-
-			//Executar a comunicação, ou seja, inicia a Thread
-			//this.start();
 
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null,"Erro em tentar conectar ao servidor!");
 			e.printStackTrace();
 		} catch (NotBoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 	}
@@ -166,7 +135,7 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 	//Cria a parte Gráfica da parte do cliente ou Jogador
 	public void criarGUI() {
 
-		//Criar e configurar a janela
+		//Cria e configura a janela
 		frame = new JFrame(nomeJogador);
 		frame.setSize(1200, 700);
 		//não redimensionar
@@ -216,7 +185,7 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		textField.setBounds(830, 470, 260, 25);		
 		painelDeConteudo.add(textField);
 
-		//campo que contém as mensagens enviadas e recebidas
+		//Campo que contém as mensagens enviadas e recebidas
 		areadetexto=new JTextArea();
 		areadetexto.setEditable(false);
 		JScrollPane ps2 = new JScrollPane(areadetexto);
@@ -235,32 +204,10 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		painelDeConteudo.add(jogar);
 
 		pontucaoJogadoresDoJogo=new Pontuacao(new ArrayList<String>(),new ArrayList<Integer>());;
-		pontucaoJogadoresDoJogo.setLayout(null);
-		
-//		JLabel pont = new JLabel("Pontuação: ");
-//		pont.setBounds(0,0,70,30);
-//		
-//		JLabel jog1 = new JLabel("Jogador1: ");
-//		jog1.setBounds(80,0,100,30);
-//		pontucaoJogadoresDoJogo.add(jog1);
-//
-//		JLabel jog2 = new JLabel("Jogador2: ");
-//		jog2.setBounds(200,0,100,30);
-//		pontucaoJogadoresDoJogo.add(jog2);
-//
-//		JLabel jog3 = new JLabel("Jogador3: ");
-//		jog3.setBounds(320,0,100,30);
-//		pontucaoJogadoresDoJogo.add(jog3);
-//
-//		JLabel jog4 = new JLabel("Jogador4: ");
-//		jog4.setBounds(440,0,100,30);
-//		pontucaoJogadoresDoJogo.add(jog4);
-//		
-//		pontucaoJogadoresDoJogo.add(pont);
-		
+		pontucaoJogadoresDoJogo.setLayout(null);		
 		pontucaoJogadoresDoJogo.setBounds(260,22,600,25);
 		painelDeConteudo.add(pontucaoJogadoresDoJogo);
-		
+
 		frame.setVisible(true);
 
 	}
@@ -281,376 +228,16 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 		try {
 
-			//Cria um canal para enviar dados do cliente
-			////dadosEnviados = new DataOutputStream(socket.getOutputStream());
-
-			//Cria um canal para receber dados do cliente
-			////dadosRecebidos = new DataInputStream(socket.getInputStream());
-
-			//Coloca no servidor o nome do usuário ou jogador
-			////dadosEnviados.writeUTF(nomeJogador);
-			////dadosEnviados.flush();
-
+			//Registra o Jogador no Servidor 
 			serv.login(nomeJogador);
-
-
-			//Variável que contém a string recebida do servidor
-			////String rec="";
 
 			//Condição fechar esse jogodor, ou seja, quando o jogador desejar fechar a sua interface gráfica
 			while(!teclado.equals("close")&&servidorLotado==false){
 
-				////mostrarTexto=true;
-
-				//System.out.println("ClienteThread: Esperando para ler String");
-				//Recebe uma nova string do servidor
-				////rec=receberMsg();
-				////System.out.println("ClienteThread: Recebeu a string "+rec);
-
-
-
-				//desconsiderar mensagem repetidas
-				////if(rec.equals("Continuar, pois a peça foi escolhida.")){
-				////mostrarTexto=false;
-				////}
-
-				//Início do jogo e o jogador irá receber suas peças que é um objeto
-				////if(rec.equals("Receber Lista de Peças")){
-
-				//					//Recebe um ArrayList com as peças desse jogador
-				//					recObjeto = new ObjectInputStream(socket.getInputStream());  
-				//					ArrayList<PecaDomino> pecaJogador=(ArrayList)recObjeto.readObject();
-				//					System.out.println("ClienteThread: Recebeu a lista com as peças");
-				//
-				//					//Volta para o canal de de receber String
-				//					dadosRecebidos = new DataInputStream(socket.getInputStream());
-				//
-				//					//Atualiza os valores reais das peças deste jogador
-				//					pecasJogador=pecaJogador;
-				//					System.out.println("ClienteThread: Atualizou as peças do Jogador");
-				//
-				//					System.out.println("ClienteThread: Jogador "+nomeJogador+" recebeu seu domino");
-				//					System.out.println("ClienteThread: "+pecaJogador.size());
-				//
-				//					//Mostra as peças desse jogador
-				//					for(int i=0; i<pecaJogador.size(); i++){
-				//						System.out.println("ClienteThread: "+pecaJogador.get(i).getLadoEsquerdo()+"|"+pecaJogador.get(i).getLadoDireito());
-				//					}
-				//
-				//					//Adiciona a parte das peças do jogador no Frame
-				//					desenhoPecasDoJogador=new GuiDesenhaDomino(this.pecasJogador);
-				//
-				//					nomePecas = new JLabel("Minhas Peças: ");
-				//					nomePecas.setBounds(0,420,150,30);
-				//					painelDeConteudo.add(nomePecas);
-				//
-				//					desenhoPecasDoJogador.setPreferredSize(new Dimension (100+90*pecaJogador.size(), 210));
-				//					painelPecasDoJogador = new JScrollPane(desenhoPecasDoJogador);
-				//					painelPecasDoJogador.setBounds(0, 450, 750, 210);	
-				//					painelPecasDoJogador.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-				//					painelPecasDoJogador.addMouseListener(this);
-				//					painelDeConteudo.add(painelPecasDoJogador);
-				//
-				//					desenhoDasPecasDaMesa.repaint();
-				//					desenhoPecasDoJogador.repaint();
-				//
-				//
-				//					//Atualiza o Frame
-				//					painelDeConteudo.repaint();
-				//
-				//					frame.validate();
-				//
-				//					mostrarTexto=false;
-				////	}
-
-				//Esse jogador inicia o jogo, ou seja, ele pode enviar qualquer peça, já que é a primeira peça
-				////	if(rec.equals("primeiraPeca")){
-
-				//					System.out.println("ClienteTread: Jogador "+nomeJogador+" irá escolher primeira peça");
-				//
-				//					enviarPrimeiraPeca=true;
-				//
-				//					//Manda o servidor(TrataCliente) esperar por um objeto, ou seja, a peça escolhida
-				//					enviarMsg("peca Escolhida");//trocou pelo de cima
-				//
-				//					System.out.println("ClienteTread: Jogador "+nomeJogador+" tem que selecionar um peça e o lado que deseja jogar");
-				//					pecaSelecionada=-1;//isso para dizer que não foi selecionada nenhuma peça
-				//					//Trata a atualização da variável no evento de mouse
-				//					Boolean sairWhile=false;//erro de atualização
-				//					// Fica no while enquanto não selecionar a 1 peça
-				//					while(pecaSelecionada<=-1||sairWhile==false){
-				//
-				//						if (pecaSelecionada>-1) {
-				//							//out.writeUTF("recebaObjeto");
-				//							System.out.println("Jogador "+nomeJogador+" valor Peça selecionada1: "+pecaSelecionada);
-				//
-				//							//Remove a peça selecionada pelo Jogador da lista de peças
-				//							PecaDomino pecaAEnviar = pecasJogador.remove(pecaSelecionada);
-				//
-				//							System.out.println("Jogador "+nomeJogador+" ENVIARÁ a Peça: "+pecaAEnviar.getLadoEsquerdo()+"|"+pecaAEnviar.getLadoDireito());
-				//
-				//							//Indica que a peça deve ser insirida no início da lista de peças na mesa
-				//							enviarMsg("Esquerdo");
-				//
-				//							envObjeto = new ObjectOutputStream(socket.getOutputStream());
-				//							envObjeto.writeObject(pecaAEnviar);
-				//
-				//							//Volta a enviar String 
-				//							dadosEnviados = new DataOutputStream(socket.getOutputStream());
-				//
-				//							//Diz que esse jogador não venceu o jogo, pois é o início do jogo
-				//							enviarMsg("Não ganhou");
-				//
-				//							System.out.println("Jogador "+nomeJogador+" ENVIOU a Peça: "+pecaAEnviar.getLadoEsquerdo()+"|"+pecaAEnviar.getLadoDireito());
-				//
-				//							sairWhile=true;
-				//
-				//							enviarPrimeiraPeca=false;
-				//
-				//						}
-				//					}
-				//					System.out.println("Jogador "+nomeJogador+" valor Peça selecionada2: "+pecaSelecionada);
-				//					pecaSelecionada=-1;//isso para deselecionar a peça
-				//					System.out.println("ClienteThread: Jogador "+nomeJogador+" enviou 1 peça");
-				//
-				//					enviarMsg("Jogou uma peça para iniciar o jogo.");
-				//
-				//					mostrarTexto=false;
-				////	}
-
-				//Quando não possuir peça possível de jogar, compra uma peça não utilizadas
-				////if(rec.equals("Receber Uma Peça Puxada")){
-				//					//Recebe uma nova Peça
-				//					PecaDomino pecaPuxada=(PecaDomino)recObjeto.readObject();
-				//					System.out.println("Jogador "+nomeJogador+" recebeu esta Peça puxando: "+ pecaPuxada.getLadoEsquerdo()+"|"+pecaPuxada.getLadoDireito());
-				//					//Volta para o canal que recebe String
-				//					dadosRecebidos = new DataInputStream(socket.getInputStream());
-				//					//Adiciona a peça que foi puxada ou comprada na lista de peças do jogador
-				//					pecasJogador.add(pecaPuxada);
-				//					//Aumenta o tamanho do scroll das peças dos jogadores
-				//					desenhoPecasDoJogador.setPreferredSize(new Dimension (100+90*pecasJogador.size(), 210));
-				//
-				//					//Desenha a nova peça no JPanel
-				//					desenhoPecasDoJogador.repaint();
-				//
-				//					desenhoDasPecasDaMesa.repaint();
-				//
-				//					painelDeConteudo.repaint();
-				//
-				//					frame.validate();
-				//
-				//					enviarMsg("Comprei uma peça.");
-				//
-				//					mostrarTexto=false;
 			}
 
-			//Atualiza as peças que estão no centro da Mesa
-			////	if(rec.equals("atualizar mesa")){
-			//					//Recebe um ArrayList de Peças que estão na mesa
-			//					pecasDaMesa=receberPecasDaMesa();
-			//					mostrarPecasDaMesa();//Imprime no console as peças recebidas					
-			//					desenhoDasPecasDaMesa.setPecasDaMesa(pecasDaMesa);//Atualiza na parte gráfica os novos valores
-			//					//Aumenta o tamango do Scroll das peças da mesa
-			//					desenhoDasPecasDaMesa.setPreferredSize(new Dimension (100+140*pecasDaMesa.size(), 300));
-			//					//Desenha os novos valores de peças na mesa
-			//					desenhoDasPecasDaMesa.repaint();
-			//
-			//					desenhoPecasDoJogador.repaint();
-			//
-			//					painelDeConteudo.repaint();
-			//
-			//					frame.validate();
-			//
-			//					mostrarTexto=false;
-			////		}
-
-			//No inicio de um novo jogo, habilitar todos botões de pronto
-			////	if(rec.equals("Habilita botão de pronto")){
-			//					jogar.setEnabled(true);
-			//					mostrarTexto=false;
-			//					pecasJogador=new ArrayList<PecaDomino>();
-			////	}
-
-			//Jogo trancado
-			////	if(rec.equals("Jogo Trancado!")){
-			//					int somaPecas=0;
-			//					for(int i=0;i<pecasJogador.size();i++){
-			//						somaPecas=somaPecas+pecasJogador.get(i).getLadoDireito()+pecasJogador.get(i).getLadoEsquerdo();
-			//					}
-			//					System.out.println("Somatório das peças desse jogador: "+somaPecas);
-			//					//envia a quantidade da soma das peças ao servidor
-			//					enviarMsg("Soma das peças");
-			//					enviarMsg(""+somaPecas);
-			//
-			//					mostrarTexto=false;
-			////		}
-
-			//Vez do jogador enviar a sua peça escolhida no jogo, ou seja, chegou sua vez
-			//				if(rec.equals("proximoAJogar")){
-			//
-			//					recObjeto = new ObjectInputStream(socket.getInputStream());  
-			//					//Recebe as pontas das peças na mesa, ou seja, os valores possíveis de jogar
-			//					pecaPossivel=(PecaDomino)recObjeto.readObject();
-			//					System.out.println("Jogador "+nomeJogador+" Recebeu as pontas");
-			//					//Volta para o canal que recebe String
-			//					dadosRecebidos = new DataInputStream(socket.getInputStream());
-			//
-			//					frame.validate();
-			//
-			//					//Variável que indica se existe uma peça possível a ser jogada
-			//					Boolean existePecaPossivel=false;
-			//					//Marca quais peças podem ser utilizadas em um array de Boolean
-			//					indicesPecasPossiveis=new Boolean[pecasJogador.size()];
-			//					//Verifica se existe peça possível a jogar					
-			//					for(int i=0; i<pecasJogador.size(); i++){
-			//						//Verificando se o lado direito do domino do jogador é possível
-			//						if(pecasJogador.get(i).getLadoDireito()==pecaPossivel.getLadoDireito()||pecasJogador.get(i).getLadoDireito()==pecaPossivel.getLadoEsquerdo()){
-			//							//Marca a peça possível de jogar na mesa 
-			//							pecasJogador.get(i).corPeca=Color.blue;
-			//							existePecaPossivel=true;
-			//							indicesPecasPossiveis[i]=true;
-			//						}
-			//						else{
-			//							//Verificando se o lado esquerdo do domino do jogador é possível
-			//							if(pecasJogador.get(i).getLadoEsquerdo()==pecaPossivel.getLadoDireito()||pecasJogador.get(i).getLadoEsquerdo()==pecaPossivel.getLadoEsquerdo()){
-			//								//Marca a peça possível de jogar na mesa 
-			//								pecasJogador.get(i).corPeca=Color.blue;
-			//								existePecaPossivel=true;
-			//								indicesPecasPossiveis[i]=true;
-			//
-			//							}else{
-			//								//Marca a peça possível de jogar na mesa 
-			//								pecasJogador.get(i).corPeca=Color.black;
-			//								indicesPecasPossiveis[i]=false;
-			//							}
-			//						}
-			//					}
-			//
-			//					frame.validate();
-			//
-			//					//Pergunta se existe uma peça a ser jogada
-			//					if(existePecaPossivel==true){
-			//
-			//
-			//
-			//						ladoAJogar="";
-			//						pecaSelecionada=-1;//isso para dizer que não foi selecionada nenhuma peça
-			//						//Trata a atualização da variável que contém a peça escolhida no evento de mouse
-			//						Boolean sairWhile=false;
-			//						while(pecaSelecionada<=-1||indicesPecasPossiveis[pecaSelecionada]==false||sairWhile==false){
-			//							//posso colocar aqui ler strings e esperar até receber peça escolhida
-			//							//para tratar o chat que não recebe enquando não 
-			//							//se a peça foi selecionada e também é possível jogá-la e escolhido o lado
-			//							String confirmacao=receberMsg();
-			//							while (!confirmacao.equals("Continuar, pois a peça foi escolhida.")){
-			//								areadetexto.append(confirmacao+"\n");
-			//								areadetexto.setCaretPosition(areadetexto.getText().length());
-			//								confirmacao=receberMsg();
-			//							}
-			//
-			//							if (pecaSelecionada>-1 && indicesPecasPossiveis[pecaSelecionada]==true && 
-			//									ladoCorreto(pecaPossivel)) {//verifica se o lado selecionado pode receber a peça
-			//
-			//								//Manda o servidor esperar que o jogador envie a peça escolhida
-			//								dadosEnviados.writeUTF("peca Escolhida");
-			//								dadosEnviados.flush();
-			//
-			//								//antes de enviar objeto dizer se irá para direita ou esquerda
-			//								//		ordenarPeca
-			//
-			//								//saber se o lado é possível de jogar
-			//								//envia o lado
-			//
-			//								PecaDomino pecaAEnviar =ordenarPeca(pecaPossivel,pecaSelecionada,ladoAJogar);
-			//								enviarMsg(ladoAJogar);
-			//
-			//								envObjeto = new ObjectOutputStream(socket.getOutputStream());
-			//
-			//								System.out.println("Jogador "+nomeJogador+" ENVIARÁ esta Peça: "+pecaAEnviar.getLadoEsquerdo()+"|"+pecaAEnviar.getLadoDireito());
-			//								envObjeto.writeObject(pecaAEnviar);
-			//								System.out.println("Jogador "+nomeJogador+" ENVIOU esta Peça: "+pecaAEnviar.getLadoEsquerdo()+"|"+pecaAEnviar.getLadoDireito());
-			//
-			//								//voltar a enviar String 
-			//								dadosEnviados = new DataOutputStream(socket.getOutputStream());
-			//
-			//								//perguntar se esse jogador ganhou o jogo
-			//								if(pecasJogador.isEmpty()){
-			//									enviarMsg("Jogador Venceu essa rodada!");
-			//								}else{
-			//									enviarMsg("Não ganhou");
-			//
-			//								}
-			//
-			//								sairWhile=true;
-			//
-			//								enviarPrimeiraPeca=false;
-			//							}else{
-			//								if(pecaSelecionada>-1&&indicesPecasPossiveis[pecaSelecionada]==false){
-			//									JOptionPane.showMessageDialog(null,"Essa peça não pode ser utilizada! Utilize "+pecaPossivel.getLadoEsquerdo()+" ou "+pecaPossivel.getLadoDireito());
-			//									pecaSelecionada=-1;
-			//								}}
-			//						}
-			//						//zerar o lado e e peça selecionada
-			//						pecaSelecionada=-1;//isso para deselecionar a peça
-			//						ladoAJogar="";
-			//						System.out.println("ClienteThread: "+nomeJogador+" enviou a peça: ");
-			//					}
-			//					else{//não existe peça possível a ser jogada
-			//						dadosEnviados.writeUTF("Não existe peça possível a ser jogada.");
-			//						dadosEnviados.flush();
-			//					}
-			//
-			//					//Quando terminar a jogada deixar todas as peças pretas					
-			//					for (int i = 0; i < pecasJogador.size(); i++) {
-			//						pecasJogador.get(i).corPeca=Color.black;
-			//					}
-			//
-			//					desenhoDasPecasDaMesa.repaint();
-			//					desenhoPecasDoJogador.repaint();
-			//
-			//					painelDeConteudo.repaint();
-			//
-			//					frame.validate();
-			//
-			//					mostrarTexto=false;
-			//
-			//					//Não pintar a peça de amarelo
-			//					indicesPecasPossiveis=new Boolean[pecasJogador.size()];
-			//					//Verifica se existe peça possível a jogar					
-			//					for(int i=0; i<pecasJogador.size(); i++){
-			//						indicesPecasPossiveis[i]=false;
-			//					}
-			//
-			//
-			//				}
-			//				//Receber Objeto
-			//				if(mostrarTexto==true){
-			//					areadetexto.append(rec+"\n");
-			//					areadetexto.setCaretPosition(areadetexto.getText().length());
-			//				}
-			//				System.out.println("ClienteThread: Jogador "+nomeJogador+" escreveu no textArea - "+rec);
-			//
-			//				//Servidor com limite de jogadores 
-			//				if(rec.equals("Servidor já está lotado!")){
-			//					JOptionPane.showMessageDialog(null,"Servidor já está lotado!");
-			//					System.exit(1); }
-			//
-			//				//Jogo Iniciado
-			//				if(rec.equals("Jogo iniciado e nao pode entrar!")){
-			//					JOptionPane.showMessageDialog(null,"Jogo já foi iniciado, não pode adicionar novos jogadores!");
-			//					System.exit(1); }				
-			//
-			//			}
-
+			//Mostra uma mensagem quando o cliente sai
 			System.out.println("ClienteThread: "+nomeJogador+" fechou sua conexão");
-
-			//fecha os canais de saída e entrada
-			////dadosEnviados.close();
-			////dadosRecebidos.close();
-			//fecha o socket
-			////socket.close();
-
-
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -667,27 +254,6 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		System.out.println();
 		System.out.println("ClienteThread: FIM Peças que estão no centro da mesa: ");
 	}
-
-	//Receber peças já utilizadas e estão no centro da mesa
-	//	public ArrayList <PecaDomino> receberPecasDaMesa(){
-	//
-	//		ArrayList <PecaDomino> pecaDaMesaLocal=null;
-	//		//já tem que está pronto para para receber antes deles enviarem
-	//		try {
-	//			recObjeto = new ObjectInputStream(socket.getInputStream());
-	//			//valores que podem ser jogados
-	//			pecaDaMesaLocal=(ArrayList <PecaDomino>)recObjeto.readObject();
-	//			System.out.println("Jogador "+nomeJogador+" Recebeu as peças da Mesa");
-	//			//voltar para o canal de string
-	//			dadosRecebidos = new DataInputStream(socket.getInputStream());
-	//		} catch (IOException e) {
-	//			e.printStackTrace();
-	//		} catch (ClassNotFoundException e) {
-	//			e.printStackTrace();
-	//		}  
-	//
-	//		return pecaDaMesaLocal;
-	//	}
 
 	//Verifica se o lado selecionado é possível jogar
 	public Boolean ladoCorreto(PecaDomino p){
@@ -722,32 +288,20 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		}
 	}
 
-	//Recebe as peças que estão no centro mesa, ou seja, já foram utlizadas pelos jogadores
-	//	public void setPecasDaMesa(){
-	//		try {
-	//			recObjeto = new ObjectInputStream(socket.getInputStream());  
-	//			pecasDaMesa=(ArrayList)recObjeto.readObject();
-	//		} catch (IOException e) {
-	//			e.printStackTrace();
-	//		} catch (ClassNotFoundException e) {
-	//			e.printStackTrace();
-	//		}		
-	//	}
-
 	//Vira a peça para deixar do lado correto, ou seja, pelo menos um lado jogável
 	public PecaDomino ordenarPeca(PecaDomino pecaPo, int indice, String lado){
-		//procura na lista a peça selecionada pelo jogador
+		//Procura na lista a peça selecionada pelo jogador
 		PecaDomino pecaAEnviarAoServidor = pecasJogador.remove(indice);
 
 		//Peça invertida
 		if(lado.equals("Esquerdo")&&pecaAEnviarAoServidor.getLadoDireito()!=pecaPo.getLadoEsquerdo() ){
-			//mandar o jogador escolher lado
+			//Manda o jogador escolher lado
 			int troca=pecaAEnviarAoServidor.getLadoDireito();
 			pecaAEnviarAoServidor.setLadoDireito(pecaAEnviarAoServidor.getLadoEsquerdo());
 			pecaAEnviarAoServidor.setLadoEsquerdo(troca);
 
 		}
-		else{//para tratar peça com dois lados iguais e vem uma invertida
+		else{//Para tratar peça com dois lados iguais e vem uma invertida
 			if(lado.equals("Direito")&&pecaAEnviarAoServidor.getLadoEsquerdo()!= pecaPo.getLadoDireito()){
 				int troca=pecaAEnviarAoServidor.getLadoDireito();
 				pecaAEnviarAoServidor.setLadoDireito(pecaAEnviarAoServidor.getLadoEsquerdo());
@@ -757,28 +311,7 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		return pecaAEnviarAoServidor;
 	}
 
-	//Recebe uma String do Servidor
-	//	public String receberMsg(){
-	//		String valorRecebido=null;
-	//		try {
-	//			valorRecebido = dadosRecebidos.readUTF();
-	//		} catch (IOException e) {
-	//			e.printStackTrace();
-	//		}
-	//		return valorRecebido;
-	//	}
-
-	//Envia uma String ao Servidor
-	//	public void enviarMsg(String str){
-	//		try {
-	//			dadosEnviados.writeUTF(str);
-	//			dadosEnviados.flush();
-	//		} catch (IOException e) {
-	//			e.printStackTrace();
-	//		}
-	//	}
-
-	//colocar as 7 peças do início do jogo que foram recebidas do servidor
+	//Coloca as 7 peças do início do jogo que foram recebidas do servidor
 	public void setPecasJogador(ArrayList<PecaDomino> Jogador) {
 		this.pecasJogador = Jogador;
 	}
@@ -786,7 +319,7 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 	//Mostra as peças deste jogador
 	void mostrarPecas(){
 		System.out.println("ClienteThread: Domino d "+nomeJogador);
-		//mostrar as peças de um jogador
+		//Mostra as peças de um jogador
 		for(int i=0; i<pecasJogador.size(); i++){
 			System.out.println("ClienteThread: "+pecasJogador.get(i).getLadoEsquerdo()+"|"+pecasJogador.get(i).getLadoDireito());
 		}
@@ -846,61 +379,51 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		//se o botão de pronto tiver selecionado, então envia a confirmação ao servidor
 		//que coloca o valor em uma variavel no trataCliente e quantos todos tiver confirmado começa o jogo
 		if(e.getSource()==jogar){
-			//desabilitar o check box que confirma se o jogador está pronto
+			//Desabilita o check box que confirma se o jogador está pronto
 			jogar.setEnabled(false);
-			////enviarMsg("Estou pronto para receber peças!");
 			try {
+				//Avisa a todos os jogadores que esse cliente está pronto para jogar
 				serv.enviaATodosClientes(nomeJogador+" está pronto para receber peças!");
 				serv.prontoParaJogar(true,nomeJogador);
 			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-
-			//areadetexto.append("Estou pronto para receber peças!\n");
-			//areadetexto.setCaretPosition(areadetexto.getText().length());
 		}
 
-		//enviar mensagem aos outros jogadores
+		//Envia mensagem do chat aos outros jogadores
 		if(e.getSource() == enviar){
-			String valorTextField=textField.getText(); 
+			//Captura o valor do TextField
+			String valorTextField=textField.getText();
+			//Apaga o valor que está no TextField
 			textField.setText("");
-			//enviar uma string
 
 			System.out.println("ClienteThread: "+nomeJogador+" enviou ao servidor o campo - "+valorTextField);
-			////dadosEnviados.writeUTF(valorTextField);
-			////dadosEnviados.flush();
+
 			try {
+				//Envia a todos jogadores o valor que está no chat
 				serv.enviaATodosClientes(nomeJogador+": "+valorTextField);
 			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-
-
 		}
 
-		//fechar o jogo e conexão com o servidor
+		//Fecha o jogo e conexão com o servidor
 		if(e.getSource()==itemSair){
 
-			//colocar para fechar a conexão antes de sair
+			//Coloca para fechar a conexão antes de sair
 			System.out.println("ClienteThread: Jogador "+nomeJogador+" fechou sua conexão");
 
-			//fecha os canais de saída e entrada
+			//Fecha os canais de saída e entrada
 			try {
-				////dadosEnviados.writeUTF("close");
 				serv.enviaATodosClientes(nomeJogador+": Fechei minha janela!");
-
-
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-
 			//fechar janela, ou seja, Frame
 			System.exit(1);  
 		}
 
-		//mostrar o nome dos autores do Jogo
+		//Mostra o nome dos autores do Jogo
 		if(e.getSource() == autores){
 			JOptionPane.showMessageDialog(null,"Wandemberg Rodrigues Gomes");
 		}		
@@ -934,7 +457,7 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		}
 
 		System.out.println("Jogador "+nomeJogador+" selecionou: "+pecaSelecionada);
-		System.out.println("Jogador "+nomeJogador+" selecionou lado: "+ladoAJogar);		
+		//System.out.println("Jogador "+nomeJogador+" selecionou lado: "+ladoAJogar);		
 
 	}
 
@@ -958,40 +481,30 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		catch (RemoteException e) {
 			e.printStackTrace();
 		}
-
-
-
 	}
 
-	@Override
-	public ArrayList<PecaDomino> pecasJogador() throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
+	//Recebe uma String 
 	public void recebeString(String a) throws RemoteException {
 		System.out.println(a);
 	}
 
+	//Recebe uma String e coloca no TextArea
 	public void recebeMensagemDoChat(String s) throws RemoteException {
 		areadetexto.append(s+"\n");
 		areadetexto.setCaretPosition(areadetexto.getText().length());
 	}
 
-	@Override
+	//Recebe uma peça, ou seja, quando estiver comprando peça
 	public void recebeUmaPeca(PecaDomino p) throws RemoteException {
-		//Recebe uma nova Peça
-		////PecaDomino pecaPuxada=(PecaDomino)recObjeto.readObject();
 
 		PecaDomino pecaPuxada=p;
 
 		System.out.println("Cliente: "+nomeJogador+" recebeu esta Peça puxando: "+ pecaPuxada.getLadoEsquerdo()+"|"+pecaPuxada.getLadoDireito());
-		//Volta para o canal que recebe String
-		////dadosRecebidos = new DataInputStream(socket.getInputStream());
 
 		//Adiciona a peça que foi puxada ou comprada na lista de peças do jogador
 		pecasJogador.add(pecaPuxada);
+
 		//Aumenta o tamanho do scroll das peças dos jogadores
 		desenhoPecasDoJogador.setPreferredSize(new Dimension (100+90*pecasJogador.size(), 210));
 
@@ -1004,24 +517,8 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 		frame.validate();
 
-		////enviarMsg("Comprei uma peça.");
-
+		//Avisa a todos os jogadores que o jogador comprou uma peça
 		serv.enviaATodosClientes(nomeJogador+": Comprei uma peça.");
-
-		////mostrarTexto=false;
-
-	}
-
-	@Override
-	public void recebeListaDePecas(ArrayList<PecaDomino> pecas)
-	throws RemoteException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void recebeObject(Object o) throws RemoteException {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1034,12 +531,12 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		this.pecasJogador=pecas;
 		pecaPossivel=null;
 		desenhoPecasDoJogador = new GuiDesenhaDomino(pecasJogador);
-		
+
 		System.out.println("Cliente: Atualizou as peças do Jogador");
 
 		//Coloquei depois
 		mostrarPecas();
-		
+
 		System.out.println("Cliente: "+nomeJogador+" recebeu seu domino");
 		System.out.println("Cliente: "+pecas.size());
 
@@ -1078,22 +575,22 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 		System.out.println("Cliente: "+nomeJogador+" irá escolher primeira peça");
 
-		enviarPrimeiraPeca=true;
+		//Indica que é a primeira peça a jogar
+		//enviarPrimeiraPeca=true;
 
-		//Manda o servidor(TrataCliente) esperar por um objeto, ou seja, a peça escolhida
-		////enviarMsg("peca Escolhida");//trocou pelo de cima
-
-
+		//Valor da peça que o jogador irá enviar
 		PecaDomino pecaAEnviar = null ;
+
 		System.out.println("Cliente: "+nomeJogador+" tem que selecionar um peça e o lado que deseja jogar");
 		pecaSelecionada=-1;//isso para dizer que não foi selecionada nenhuma peça
+
 		//Trata a atualização da variável no evento de mouse
 		Boolean sairWhile=false;//erro de atualização
 		// Fica no while enquanto não selecionar a 1 peça
 		while(pecaSelecionada<=-1||sairWhile==false){
 
 			if (pecaSelecionada>-1) {
-				//out.writeUTF("recebaObjeto");
+
 				System.out.println("Cliente: "+nomeJogador+" valor do índice da Peça selecionada: "+pecaSelecionada);
 
 				//Remove a peça selecionada pelo Jogador da lista de peças
@@ -1101,23 +598,10 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 				System.out.println("Cliente: "+nomeJogador+" ENVIARÁ a Peça: "+pecaAEnviar.getLadoEsquerdo()+"|"+pecaAEnviar.getLadoDireito());
 
-				//Indica que a peça deve ser insirida no início da lista de peças na mesa
-				///enviarMsg("Esquerdo");
-
-
-				//criar um método que implementa o lado escolhido
+				//Envia o lado escolhido ao servidor
 				serv.recebeLadoAJogar("Esquerdo");
 
 				System.out.println("Cliente: "+nomeJogador+" enviou o lado onde deve ser add a Peça: Esquerdo");
-
-				////envObjeto = new ObjectOutputStream(socket.getOutputStream());
-				////envObjeto.writeObject(pecaAEnviar);
-
-				//Volta a enviar String 
-				////dadosEnviados = new DataOutputStream(socket.getOutputStream());
-
-				//Diz que esse jogador não venceu o jogo, pois é o início do jogo
-				////enviarMsg("Não ganhou");
 
 				serv.ganhouJogo("Não ganhou",nomeJogador);
 
@@ -1125,44 +609,44 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 				sairWhile=true;
 
-				enviarPrimeiraPeca=false;
+				//	enviarPrimeiraPeca=false;
 
 			}
 		}
+
 		System.out.println("Cliente: "+nomeJogador+" valor do índice da Peça: "+pecaSelecionada);
 		pecaSelecionada=-1;//isso para deselecionar a peça
 		System.out.println("Cliente: "+nomeJogador+" enviou 1 peça");
 
-		////enviarMsg("Jogou uma peça para iniciar o jogo.");
+		//Avisa a todos Jogadores que o jogador iniciou o jogo
 		serv.enviaATodosClientes("Jogou uma peça para iniciar o jogo.");
 
-		//descolorir peças possíveis
+		//Descolore peças possíveis
 		pecaPossivel=null;
 
 		return pecaAEnviar;
 	}
 
-
+	//Jogadas após a 1 jogada
 	public PecaDomino jogaProximaPeca(PecaDomino pecaPoss) throws RemoteException {
-		////recObjeto = new ObjectInputStream(socket.getInputStream());  
-		//Recebe as pontas das peças na mesa, ou seja, os valores possíveis de jogar
-		////pecaPossivel=(PecaDomino)recObjeto.readObject();
 
+		//Recebe as pontas das peças na mesa, ou seja, os valores possíveis de jogar
 		pecaPossivel=pecaPoss;
 
+		//Valor da peça que o jogador irá enviar
 		PecaDomino pecaAEnviar=null;
 
 		System.out.println("Cliente: "+nomeJogador+" Recebeu as pontas");
-		//Volta para o canal que recebe String
-		////dadosRecebidos = new DataInputStream(socket.getInputStream());
 
 		frame.validate();
 
 		//Variável que indica se existe uma peça possível a ser jogada
 		Boolean existePecaPossivel=false;
+
 		//Marca quais peças podem ser utilizadas em um array de Boolean
 		indicesPecasPossiveis=new Boolean[pecasJogador.size()];
-		//Verifica se existe peça possível a jogar					
+
+		//Verifica se existe peça possível a jogar e coloca no "indicesPecasPossiveis[]"					
 		for(int i=0; i<pecasJogador.size(); i++){
 			//Verificando se o lado direito do domino do jogador é possível
 			if(pecasJogador.get(i).getLadoDireito()==pecaPossivel.getLadoDireito()||pecasJogador.get(i).getLadoDireito()==pecaPossivel.getLadoEsquerdo()){
@@ -1192,86 +676,57 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		//Pergunta se existe uma peça a ser jogada
 		if(existePecaPossivel==true){
 
-
-
+			//Zera o valor do lado que o jogador escolheu
 			ladoAJogar="";
+			//Zera o valor do índice da peça que o jogador escolheu
 			pecaSelecionada=-1;//isso para dizer que não foi selecionada nenhuma peça
+
 			//Trata a atualização da variável que contém a peça escolhida no evento de mouse
 			Boolean sairWhile=false;
 			while(pecaSelecionada<=-1||indicesPecasPossiveis[pecaSelecionada]==false||sairWhile==false){
+
 				//posso colocar aqui ler strings e esperar até receber peça escolhida
-				//para tratar o chat que não recebe enquando não 
 				//se a peça foi selecionada e também é possível jogá-la e escolhido o lado
-
-				////era pro chat o que está em baixo
-				//				String confirmacao=receberMsg();
-				//				while (!confirmacao.equals("Continuar, pois a peça foi escolhida.")){
-				//					areadetexto.append(confirmacao+"\n");
-				//					areadetexto.setCaretPosition(areadetexto.getText().length());
-				//					confirmacao=receberMsg();
-				//				}
-
 				if (pecaSelecionada>-1 && indicesPecasPossiveis[pecaSelecionada]==true && 
 						ladoCorreto(pecaPossivel)) {//verifica se o lado selecionado pode receber a peça
 
-					//Manda o servidor esperar que o jogador envie a peça escolhida
-					////dadosEnviados.writeUTF("peca Escolhida");
-					////dadosEnviados.flush();
-
 					//antes de enviar objeto dizer se irá para direita ou esquerda
-					//		ordenarPeca
-
-					//saber se o lado é possível de jogar
-					//envia o lado
-
 					pecaAEnviar =ordenarPeca(pecaPossivel,pecaSelecionada,ladoAJogar);
 
-					////enviarMsg(ladoAJogar);
+					//Envia o lado selecionado pelo Jogador
 					serv.recebeLadoAJogar(ladoAJogar);
 
-
-					////envObjeto = new ObjectOutputStream(socket.getOutputStream());
-
-					System.out.println("Clienete: "+nomeJogador+" ENVIARÁ esta Peça: "+pecaAEnviar.getLadoEsquerdo()+"|"+pecaAEnviar.getLadoDireito());
-					////envObjeto.writeObject(pecaAEnviar);
-
-					System.out.println("Cliente: "+nomeJogador+" ENVIOU esta Peça: "+pecaAEnviar.getLadoEsquerdo()+"|"+pecaAEnviar.getLadoDireito());
-
-					//voltar a enviar String 
-					////dadosEnviados = new DataOutputStream(socket.getOutputStream());
-
-					//perguntar se esse jogador ganhou o jogo
+					//Pergunta se esse jogador ganhou o jogo
 					if(pecasJogador.isEmpty()){
-						////enviarMsg("Jogador Venceu essa rodada!");
+						//Avisa o servidor que o jogador venceu o jogo
 						serv.ganhouJogo("venceu essa rodada!",nomeJogador);
 					}else{
-						////enviarMsg("Não ganhou");
+						//Avisa o servidor que o jogador não venceu o jogo
 						serv.ganhouJogo("Não ganhou",nomeJogador);
 					}
 
+					//Para sair do while de peça escolhida 
 					sairWhile=true;
 
-					enviarPrimeiraPeca=false;
+					//enviarPrimeiraPeca=false;
 				}else{
 					if(pecaSelecionada>-1&&indicesPecasPossiveis[pecaSelecionada]==false){
 						JOptionPane.showMessageDialog(null,"Essa peça não pode ser utilizada! Utilize "+pecaPossivel.getLadoEsquerdo()+" ou "+pecaPossivel.getLadoDireito());
 						pecaSelecionada=-1;
 					}}
 			}
-			//zerar o lado e e peça selecionada
+			//Zera o lado e e peça selecionada
 			pecaSelecionada=-1;//isso para deselecionar a peça
 			ladoAJogar="";
+
 			System.out.println("ClienteThread: "+nomeJogador+" enviou a peça: ");
 
-		}
-		else{
-			//puxar peça
 		}
 
 		//Descolore peças possíveis
 		pecaPossivel=null;
 		indicesPecasPossiveis=null;
-		
+
 		//Atualiza as novas cores da peça desse jogador 
 		colorePecasPossiveis();
 
@@ -1279,17 +734,11 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 	}
 
 	public void puxaUmaPeca(PecaDomino p) throws RemoteException {
-		////pecasJogador.add(p);
-		
-		
-		//Recebe uma nova Peça
-		////PecaDomino pecaPuxada=(PecaDomino)recObjeto.readObject();
 
+		//Recebe a peça enviada pelo Servidor
 		PecaDomino pecaPuxada=p;
 
 		System.out.println("Cliente: "+nomeJogador+" recebeu esta Peça puxando: "+ pecaPuxada.getLadoEsquerdo()+"|"+pecaPuxada.getLadoDireito());
-		//Volta para o canal que recebe String
-		////dadosRecebidos = new DataInputStream(socket.getInputStream());
 
 		//Adiciona a peça que foi puxada ou comprada na lista de peças do jogador
 		pecasJogador.add(pecaPuxada);
@@ -1305,20 +754,20 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 		frame.validate();
 
-		////enviarMsg("Comprei uma peça.");
-
+		//Avisa todos Jogadores que ele comprou uma peça
 		serv.enviaATodosClientes(nomeJogador+": Comprei uma peça.");
 	}
 
+	//Atualiza as peças que estão na mesa e pontuação
 	public void atualizaGUI(ArrayList <PecaDomino> pecaDaMesaLocal,ArrayList<String> nomesDosJogadores,ArrayList<Integer> pontuacoesJogadores) throws RemoteException {
 		//Recebe um ArrayList de Peças que estão na mesa
 
 		System.out.println("Cliente: "+nomeJogador+" Recebeu as peças da Mesa");
-		
+
 		pontucaoJogadoresDoJogo.nomeJogador=nomesDosJogadores;
 		pontucaoJogadoresDoJogo.pontosJogador=pontuacoesJogadores;
 		pontucaoJogadoresDoJogo.repaint();
-		
+
 		pecasDaMesa=pecaDaMesaLocal;
 
 		mostrarPecasDaMesa();//Imprime no console as peças recebidas	
@@ -1339,43 +788,37 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 	}
 
-
+	//Habilita o botão de pronto desse Jogador
 	public void habilitaPronto() throws RemoteException {
 		jogar.setEnabled(true);
-		////mostrarTexto=false;
 		pecasJogador=new ArrayList<PecaDomino>();
 	}
 
-	@Override
+	//Faz o somatório dos valores das peça pra saber quem ganhou
 	public int jogoTrancado() throws RemoteException {
 		int somaPecas=0;
 		for(int i=0;i<pecasJogador.size();i++){
 			somaPecas=somaPecas+pecasJogador.get(i).getLadoDireito()+pecasJogador.get(i).getLadoEsquerdo();
 		}
 		System.out.println("Somatório das peças desse jogador: "+somaPecas);
-		//envia a quantidade da soma das peças ao servidor
-		////enviarMsg("Soma das peças");
+		
+		//Avisa a todos o valor da soma das suas peças 
 		serv.enviaATodosClientes(nomeJogador+": Soma das minhas peças = "+somaPecas);
-
-		////enviarMsg(""+somaPecas);
-
-		////mostrarTexto=false;
-
+		
+		//Envia a quantidade da soma das peças ao servidor
 		return somaPecas;
 	}
 
-	@Override
+	//Indica se o servidor está lotado ou não
 	public void servidorLotador(Boolean a) throws RemoteException {
 		servidorLotado=a;		
 	}
 
-	@Override
+	//Apaga as peças desse jogador
 	public void removerTodasPecasJogador() throws RemoteException {
-
 		while( pecasJogador.size()>0) {
 			pecasJogador.remove(0);
 		}
-		
 	}
 
 }

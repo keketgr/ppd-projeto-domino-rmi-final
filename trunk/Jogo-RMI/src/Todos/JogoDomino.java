@@ -9,9 +9,9 @@ import java.util.ArrayList;
 
 
 
-//esse classe irá gerenciar todo o jogo
+//Essa classe irá gerenciar todo o jogo
 public class JogoDomino extends Thread implements Serializable{
-	//isso para o jogo esperar o jogador jogar a peça
+	//Isso é para o jogo esperar o jogador jogar a peça
 	Boolean jogadorAtualJogou=false;
 
 	//Array com boolean que indica se os jogadores passaram a suas vezes
@@ -20,10 +20,13 @@ public class JogoDomino extends Thread implements Serializable{
 	//Sinaliza a primeira jogada, ou seja inicio do jogo
 	Boolean jogada1=true;
 
-	//peças já utilizadas no jogo
+	//Peças já utilizadas no jogo
 	ArrayList <PecaDomino> pecasUtilizadas;
 
+	//Domino usado na Rodada
 	Domino domino;
+
+	//Referência do Servidor que o criou
 	ServidorThread referenciaDoServidor;
 
 	public JogoDomino(ServidorThread referenciaDoServidor){		
@@ -40,17 +43,17 @@ public class JogoDomino extends Thread implements Serializable{
 		//Reinicia Jogo
 		while(true){
 
-			//tem que ficar aqui até o jogo terminar, ou seja, o número de peça do jogador acabar
+			//Fica aqui até o jogo terminar, ou seja, o número de peça do jogador acabar
 			while(referenciaDoServidor.fimDoJogo==false){
 
-				//verificar se todos os jogadores enviaram a confirmação de pronto ao servidor
+				//Verifica se todos os jogadores enviaram a confirmação de pronto ao servidor
 				if(referenciaDoServidor.jogoIniciado==false){
-					//verifica se todos os jogadores estão prontos para jogar
+					//Verifica se todos os jogadores estão prontos para jogar
 					if(referenciaDoServidor.listaDeUsuarios.size()>1){
 						todosProntos=true;
-						//verificar se todos os jogadores estão prontos
+						//Verifica se todos os jogadores estão prontos
 						for(int i=0; i<referenciaDoServidor.listaDeUsuarios.size();i++){
-							//para achar um jogador nao pronto
+							//Acha os jogadores que não estão prontos
 							if(referenciaDoServidor.listaDeUsuarios.get(i)!=null && referenciaDoServidor.listaDeUsuarios.get(i).prontoParaJogar==false){
 
 								todosProntos=false;
@@ -64,236 +67,206 @@ public class JogoDomino extends Thread implements Serializable{
 						jogadoresQuePassaramSuaVez=new Boolean[referenciaDoServidor.listaDeUsuarios.size()];
 
 						System.out.println("JogoDomino: colocou as peças na mão do jogador");
-						//todos os jogadores pegam seus dominós
+
+						//Todos os jogadores pegam seus dominós
 						for(int j=0; j<referenciaDoServidor.listaDeUsuarios.size();j++){
 							System.out.println("JogoDomino: Índice da lista de usuários: "+j);
 							System.out.println("JogoDomino: colocou as peças na mão do jogador"+referenciaDoServidor.listaDeNomeUsuarios.get(j));
 							System.out.println("JogoDomino: Tamanho da lista de usuários:"+referenciaDoServidor.listaDeUsuarios.size());
-							//passando pro servidor as peças sorteadas do jogador
-							////referenciaDoServidor.listaDeUsuarios.get(j).setPecasJogador(domino.pecasDeUmJogador());
-
 
 							String nomeJ=referenciaDoServidor.listaDeNomeUsuarios.get(j);
 
-							//como ele irá jogar, coloca ele no final da lista
-							////jogadorAtual.enviarMensagemATodos("Vez do jogador: "+jogadorAtual.nomeUsuario);
-
 							InterfaceDoCliente cli;
 							try {
+								//Procrura o cliente
 								cli = (InterfaceDoCliente)Naming.lookup("//localhost/"+nomeJ);
+								//Sorteia as peças para 1 dos Jogadores
 								ArrayList<PecaDomino> pec=domino.pecasDeUmJogador();
+								//Envia as 7 peças sorteadas a 1 dos Jogadores
 								cli.recebe7Pecas(pec);
+								//Atualiza no Servidor as peças que estão com o jogador
 								referenciaDoServidor.listaDeUsuarios.get(j).pecasJogador=pec;
+								//Avisa no TextArea que esse Jogador recebeu suas peças
 								cli.recebeMensagemDoChat("Recebi minhas peças.");
 							} catch (MalformedURLException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							} catch (RemoteException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							} catch (NotBoundException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 
-
-							//dizer o cliente que vai um objeto
-							////referenciaDoServidor.listaDeUsuarios.get(j).enviarMensagem("Receber Lista de Peças");
-
-
-							//tem que esperar uns segundos para enviar peças
-							////	referenciaDoServidor.listaDeUsuarios.get(j).enviarPecas();
 							System.out.println("JogoDomino: Enviou as peças desse jogador");
 						}
+
 						System.out.println("JogoDomino: As peças foram dadas a todos os jogadores");
 						System.out.println("JogoDomino: Fim envio das peças!");
 
+						//Para não dar as 7 peças novamente aos Jogadores
 						todosProntos=false;
+						//Sinaliza no Servidor que o jogo foi iniciado
 						referenciaDoServidor.jogoIniciado=true;
 					}
 				}			
-				//jogo iniciado
+				//Jogo iniciado
 				else{//jogo iniciado
 
-					//				//aqui nao sabemos se são iguais os lados				
-					//				int indiceDeQuemInicia=0;
-					//				boolean iguais=pecaMaiorIguais(indiceDeQuemInicia);
-					//
-					//				//buscar a maior peça
-					//				for (int i = 1; i < referenciaDoServidor.listaDeUsuarios.size(); i++) {
-					//					//Isso indica que os dois são iguais ou diferentes
-					//					if(iguais==pecaMaiorIguais(i)){
-					//						if(somaDoisLados(i)>somaDoisLados(indiceDeQuemInicia)){
-					//							indiceDeQuemInicia=i;
-					//							iguais=pecaMaiorIguais(indiceDeQuemInicia);
-					//						}
-					//
-					//					}
-					//					else{
-					//						//lados iguais na outra peça						
-					//						if(iguais!=true&&pecaMaiorIguais(i)){
-					//							indiceDeQuemInicia=i;
-					//							iguais=pecaMaiorIguais(indiceDeQuemInicia);
-					//						}
-					//					}
-					//				}
-					//
-					//				//colocar atrás da lista
-					//				for (int i = 0; i < indiceDeQuemInicia; i++) {
-					//					TrataCliente aux= referenciaDoServidor.listaDeUsuarios.remove(i);
-					//					referenciaDoServidor.listaDeUsuarios.add(aux);
-					//				}
-
-					//				//retira o primeiro jogador da lista e coloca no final
-					//				TrataCliente jogadorAtual=referenciaDoServidor.listaDeUsuarios.get(0);
-					//				//como ele irá jogar, coloca ele no final da lista
-					//				jogadorAtual.enviarMensagemATodos("Vez do jogador: "+jogadorAtual.nomeUsuario);
-
-
-					//somente na primeira jogada, ou seja, o jogador poderá escolher qualque peça para iniciar				
+					//Somente na primeira jogada, ou seja, o jogador poderá escolher qualque peça para iniciar				
 					if (jogada1==true) {
 
 						System.out.println("\n**Primeira Jogada**\n");
 
-						//ordenar primeiro jogador					
+						//Ordena primeiro jogador, ou seja, ve quem tem maior carroção					
 						primeiroJogador();
 
-						//retira o primeiro jogador da lista e coloca no final
+						//Pega a referência do primeiro jogador da lista
 						TrataCliente jogadorAtual=referenciaDoServidor.listaDeUsuarios.get(0);
 
+						//Pega o nome do primeiro jogador da lista
 						String nomeJ=referenciaDoServidor.listaDeNomeUsuarios.get(0);
 
 						//como ele irá jogar, coloca ele no final da lista
-						////jogadorAtual.enviarMensagemATodos("Vez do jogador: "+jogadorAtual.nomeUsuario);
 						try {
+							//Cria a conexão com o primeiro Jogador
 							InterfaceDoCliente cli = (InterfaceDoCliente)Naming.lookup("//localhost/"+nomeJ);
-							//	cli.recebeMensagemDoChat("Vez do jogador: "+jogadorAtual.nomeUsuario);
+							//Avisa a todos quem é o primeiro a jogar, ou seja, a vez de quem
 							referenciaDoServidor.enviaATodosClientes("Vez do jogador: "+jogadorAtual.nomeUsuario);
-
+							//Recebe a peça escolhida pelo Jogador
 							PecaDomino p1=cli.jogaPrimeiraPeca();
+							//Verifica qual lado foi escolhido pelo Jogador
 							if (referenciaDoServidor.lado.equals("Esquerdo")) {
+								//Adiciona a peça no início da lista, ou seja, no lado esquerdo da lista
 								referenciaDoServidor.jogo.pecasUtilizadas.add(0,p1);
 							} else {//lado direito
+								//Adiciona a peça no fim da lista, ou seja, no lado direito da lista
 								referenciaDoServidor.jogo.pecasUtilizadas.add(p1);}
 
-							//isso tem que ser para todos clientes
+							//Atualiza a GUI desse jogador
 							cli.atualizaGUI(referenciaDoServidor.jogo.pecasUtilizadas,referenciaDoServidor.listaDeNomeUsuarios,referenciaDoServidor.listaDePontuacaoUsuarios);
 
-
 						} catch (MalformedURLException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} catch (RemoteException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} catch (NotBoundException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 
 						System.out.println("JogoDomino: Nome do jogador que irá iniciar- "+jogadorAtual.nomeUsuario);
-						////jogadorAtual.enviarMensagem("primeiraPeca");
 
+						//Sinaliza que já foi jogada a primeira jogada
 						jogada1=false;
-						//					while(jogadorAtualJogou==false){
-						//						//Espera até o jogador faz sua jogada
-						//					}
+
 						System.out.println("JogoDomino: "+jogadorAtual.nomeUsuario+" enviou a 1 peça!");
+
+						//Deixa pronto para a próxima rodada, que o Jogador não jogou 
 						jogadorAtualJogou=false;
 
-					} else {//outras jogadas
+					} else {//Outras jogadas
 
 						System.out.println("\n**Proxima Jogada**\n");
 
-						//retira o primeiro jogador da lista e coloca no final
+						//Pega a referência do primeiro jogador da lista
 						TrataCliente jogadorAtual=referenciaDoServidor.listaDeUsuarios.get(0);
+
+						//Pega o nome do primeiro jogador da lista
 						String nomeJ=referenciaDoServidor.listaDeNomeUsuarios.get(0);
 
-						//como ele irá jogar, coloca ele no final da lista
-						////jogadorAtual.enviarMensagemATodos("Vez do jogador: "+jogadorAtual.nomeUsuario);
-
 						try {
-
-
-							//tem que ser para todos clientes
+							//Atualiza as peça que estão na mesa de todos Jogadores
 							for (int i = 0; i < referenciaDoServidor.listaDeNomeUsuarios.size(); i++) {
 								InterfaceDoCliente cli2 = (InterfaceDoCliente)Naming.lookup("//localhost/"+referenciaDoServidor.listaDeNomeUsuarios.get(i));
 								cli2.atualizaGUI(referenciaDoServidor.jogo.pecasUtilizadas,referenciaDoServidor.listaDeNomeUsuarios,referenciaDoServidor.listaDePontuacaoUsuarios);
 							}
 
-
+							//Faz a conexão com o primeiro Jogador da Lista
 							InterfaceDoCliente cli = (InterfaceDoCliente)Naming.lookup("//localhost/"+nomeJ);
-							//	cli.recebeMensagemDoChat("Vez do jogador: "+jogadorAtual.nomeUsuario);
+
+							//Avisa a todos de quem é a vez
 							referenciaDoServidor.enviaATodosClientes("Vez do jogador: "+jogadorAtual.nomeUsuario);
 
+							//Recebe a peça jogada pelo Jogador
 							PecaDomino p1=cli.jogaProximaPeca(buscarPontasDasPecas());
 
 							System.out.println(jogadorAtual.nomeUsuario+" jogou sua peça.");
 
-							//fica puxando até acabar peças ou pegar uma possível
+							//Fica puxando até acabar peças ou pegar uma possível
 							while(p1==null&&domino.todasPecas.size()>0){
+								//Passa pro Jogador a peça comprada
 								cli.puxaUmaPeca(domino.puxarUmaPeca());
+								//Avisa a todos que esse Jogador comprou uma peça
 								referenciaDoServidor.enviaATodosClientes(jogadorAtual.nomeUsuario+" comprou uma peça.");
+								//Recebe a peça jogada pelo Jogador
 								p1=cli.jogaProximaPeca(buscarPontasDasPecas());
 							}
 
 							System.out.println("Acabou de puxar ou não.");
 
-							//não tem peça pra puxar
+							//Não tendo peça pra puxar e não tiver recebido uma peça
 							if(p1==null&&domino.todasPecas.size()==0){
 								System.out.println(jogadorAtual.nomeUsuario+" passou sua vez");
+								//Sinaliza que o Jogador passou sua vez
 								jogadorAtual.passouVez=true;
+								//Sinaliza que o jogador fez sua jogada
 								jogadorAtualJogou=true;
-							}else{//se tiver peça
+							}else{//Se tiver peça
+
 								System.out.println("Puxou peça ou não e ira adicina-la");
+								//Verifica qual lado foi escolhido pelo Jogador
 								if (referenciaDoServidor.lado.equals("Esquerdo")) {
+									//Adiciona a peça no início da lista, ou seja, no lado esquerdo da lista
 									referenciaDoServidor.jogo.pecasUtilizadas.add(0,p1);
 								} else {//lado direito
-									referenciaDoServidor.jogo.pecasUtilizadas.add(p1);}
+									//Adiciona a peça no fim da lista, ou seja, no lado direito da lista
+									referenciaDoServidor.jogo.pecasUtilizadas.add(p1); 
+								}
+
 								System.out.println("Adicionou peça na mesa");
 
-								//tem que ser para todos clientes
+								//Atualiza as peça que estão na mesa de todos Jogadores
 								for (int i = 0; i < referenciaDoServidor.listaDeNomeUsuarios.size(); i++) {
 									InterfaceDoCliente cli2 = (InterfaceDoCliente)Naming.lookup("//localhost/"+referenciaDoServidor.listaDeNomeUsuarios.get(i));
 									cli2.atualizaGUI(referenciaDoServidor.jogo.pecasUtilizadas,referenciaDoServidor.listaDeNomeUsuarios,referenciaDoServidor.listaDePontuacaoUsuarios);
 								}
+
+								//Sinaliza que o Jogador atual já jogou uma peça
 								jogadorAtualJogou=true;
 							}
 
 						} catch (MalformedURLException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} catch (RemoteException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} catch (NotBoundException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 
-
-						//isso para o 1 após o início do jogo
+						//Mostra o ArrayList das peças que estão na mesa 
 						mostrarPecasUtilizadas();
 
 						System.out.println("JogoDomino: Nome do jogador que irá iniciar- "+jogadorAtual.nomeUsuario);
-						//jogadorAtual.enviarMensagem("proximoAJogar");
-						//jogadorAtual.enviarPeca(buscarPontasDasPecas());//trocou a instrução de cima
+
 						while(jogadorAtualJogou==false){
 							//Espera até o jogador faz sua jogada
 						}
+
 						System.out.println("JogoDomino: O jogador "+jogadorAtual.nomeUsuario+" enviou a 1 peça!");
+
+						//Deixa pronto para a próxima rodada, que o Jogador não jogou 
 						jogadorAtualJogou=false;
 
-						//verifica se o jogo está trancado
+						//Verifica se o jogo está trancado, se sim entra no IF
 						if(estaTrancado()){
 							System.out.println(referenciaDoServidor.listaDeNomeUsuarios.get(0)+" trancou o jogo!");
-							//Manda todos somarem suas peças
-							////referenciaDoServidor.listaDeUsuarios.get(0).enviarMensagemATodos("Jogo Trancado!");
 
+							//Manda todos somarem suas peças
 							for (int i = 0; i < referenciaDoServidor.listaDeUsuarios.size(); i++) {
 								try {
+									//Cria a conexão com o cliente
 									InterfaceDoCliente cli = (InterfaceDoCliente)Naming.lookup("//localhost/"+referenciaDoServidor.listaDeNomeUsuarios.get(i));
+									//Obtém o somatório das peças desse Jogador e coloca na lista
 									referenciaDoServidor.listaDeUsuarios.get(i).somaDasPecasAposJogoTrancado=cli.jogoTrancado();
+									//Sinaliza que o Jogador atualizou o somotário das peças
 									referenciaDoServidor.listaDeUsuarios.get(i).atualizouTrancado=true;
 								} catch (MalformedURLException e) {
 									e.printStackTrace();
@@ -307,17 +280,23 @@ public class JogoDomino extends Thread implements Serializable{
 							System.out.println("Verificará quem tem menor somatório");
 
 							//Verifica quem tem o menor somatório
-							//falta tratrar quando tiver 2 ou mais ganhadores
+							//**falta tratrar quando tiver 2 ou mais ganhadores
+							//Variável que verifica se todos jogadores atualizaram a variável do somatório
 							Boolean atu=false;
+							//Variável que guarda o índice de quem ganhou o jogo
 							int quemGanhouJogo=0;
+							//Fica no while até que todos jogadores atualizem o somatório das suas peças
 							while(atu==false){
 								atu=true;
+								//Verifica se algum Jogador não atualizou suas peças
 								for(int i=0;i<referenciaDoServidor.listaDeUsuarios.size();i++){
 									if(referenciaDoServidor.listaDeUsuarios.get(i).atualizouTrancado==false){
 										atu=false;
 									}
 								}
+
 								quemGanhouJogo=0;
+								//Verifica o índice do Jogador que ganhou o jogo
 								for(int j=1;j<referenciaDoServidor.listaDeUsuarios.size();j++){
 									if(referenciaDoServidor.listaDeUsuarios.get(j).somaDasPecasAposJogoTrancado<referenciaDoServidor.listaDeUsuarios.get(quemGanhouJogo).somaDasPecasAposJogoTrancado){
 										quemGanhouJogo=j;
@@ -328,89 +307,67 @@ public class JogoDomino extends Thread implements Serializable{
 							System.out.println("Verificou quem tem menor somatório e irá dizer quem ganhou");
 
 							try {
+								//Avisa a todos os Jogadores quem tem o menor somatório
 								referenciaDoServidor.enviaATodosClientes(referenciaDoServidor.listaDeUsuarios.get(quemGanhouJogo).nomeUsuario+
 										" ganhou jogo, pois ele só possui o somatório de "+
 										referenciaDoServidor.listaDeUsuarios.get(quemGanhouJogo).somaDasPecasAposJogoTrancado);
 
-							
-									System.out.println("Entrou atualizar pontuação: somar +1");
-									Integer auxp =referenciaDoServidor.listaDePontuacaoUsuarios.get(quemGanhouJogo);
-									referenciaDoServidor.listaDePontuacaoUsuarios.add(quemGanhouJogo,auxp+1);
-									System.out.println("Atualizei pontuação");
-								
 
-								
+								System.out.println("Entrou atualizar pontuação: somar +1");
+								//Obtem o valor da pontuação do Jogador que ganhou o jogo 
+								Integer auxp =referenciaDoServidor.listaDePontuacaoUsuarios.get(quemGanhouJogo);
+								//Incrementa a pontuação do Jogador que ganhou o jogo 
+								referenciaDoServidor.listaDePontuacaoUsuarios.add(quemGanhouJogo,auxp+1);
+								System.out.println("Atualizei pontuação");
+
 								//Fim do jogo
 								referenciaDoServidor.fimDoJogo=true;
 							} catch (RemoteException e) {
 								e.printStackTrace();
 							}
 
-							//						referenciaDoServidor.listaDeUsuarios.get(0).enviarMensagemATodos(
-							//								referenciaDoServidor.listaDeUsuarios.get(quemGanhouJogo).nomeUsuario+
-							//								" ganhou jogo, pois ele só possui o somatório de "+
-							//								referenciaDoServidor.listaDeUsuarios.get(quemGanhouJogo).somaDasPecasAposJogoTrancado);
-
-							//contar quantas peças cada um tem para dá o resultado
-							//						while(true){
-							//
-							//						}
 						}//fim jogo trancado
 
 					}//Outras jogadas após o 1 jogador
 
-					//Coloca o jogador no final da fila
+					//Coloca o "TrataCliente" e nome do Jogador no final da Lista
 					referenciaDoServidor.listaDeUsuarios.add( referenciaDoServidor.listaDeUsuarios.remove(0));
 					referenciaDoServidor.listaDeNomeUsuarios.add( referenciaDoServidor.listaDeNomeUsuarios.remove(0));
 
-					//Atualiza pontuação também
+					//Atualiza a pontuação no final da Lista também
 					referenciaDoServidor.listaDePontuacaoUsuarios.add(referenciaDoServidor.listaDePontuacaoUsuarios.remove(0));
-
-					//				//Sinaliza que o jogo terminou
-					//				if(referenciaDoServidor.fimDoJogo==true){
-					//					System.out.println("jogo terminou");
-					//					//colocar que o jogador não está pronto
-					//					for (int i = 0; i < referenciaDoServidor.listaDeUsuarios.size(); i++) {
-					//						referenciaDoServidor.listaDeUsuarios.get(i).prontoParaJogar=false;
-					//						//Envia um sinal para habilitar o botão de pronto
-					//						referenciaDoServidor.listaDeUsuarios.get(i).enviarMensagem("Habilita botão de pronto");
-					//												
-					//					}
-					//					//Crio um novo dominó para outra partida
-					//					domino = new Domino();	
-					//					pecasUtilizadas= new ArrayList<PecaDomino>();
-					//					//Dizer que o jogo nao foi iniciado
-					//					referenciaDoServidor.jogoIniciado=false;
-					//					//Não entrar novamente no fim do jogo somente quando acabar novamente
-					//					referenciaDoServidor.fimDoJogo=false;
-					//				}//Quando o jogo termindou
 
 				}//Jogadas após dar as peças aos jogadores 
 
 			}//while(fim de um jogo)
 
 			//Mostra a pontuação atual
-		//	mostrarPontuacao();
+			//	mostrarPontuacao();
 
 			System.out.println("Acabou o Jogo!!!");
+
+			//Informa o Servidor que acabou uma rodada
 			referenciaDoServidor.referenciaGuiServ.escreverNoTexto("Acabou o Jogo!!!");
 
+			//Atualiza todos Jogadores para um novo jogo
 			for (int i = 0; i < referenciaDoServidor.listaDeNomeUsuarios.size(); i++) {
 				//TrataCliente desse jogador
 				TrataCliente tr=referenciaDoServidor.listaDeUsuarios.get(i);
+				//Atualiza que não passou a vez
 				tr.passouVez=false;
+				//Atualiza que o Jogador não está pronto para jogar
 				tr.prontoParaJogar=false;
 				tr.atualizouTrancado=false;
 				//tr.pecasJogador=new ArrayList<PecaDomino>();
 
-				//Envia um sinal para habilitar o botão de pronto
-				//referenciaDoServidor.listaDeUsuarios.get(i).enviarMensagem("Habilita botão de pronto");
+				//Conexão com o cliente
 				InterfaceDoCliente cli;
 
 				try {
 					cli = (InterfaceDoCliente)Naming.lookup("//localhost/"+referenciaDoServidor.listaDeNomeUsuarios.get(i));
+					//Remove todas as peças deste Jogador
 					cli.removerTodasPecasJogador();
-					//Habilita o checkbox para uma nova rodada
+					//Habilita o checkbox para uma nova rodada deste Jogador
 					cli.habilitaPronto();
 					//Apaga a mesa do cliente
 					cli.atualizaGUI(new ArrayList<PecaDomino>(),referenciaDoServidor.listaDeNomeUsuarios,referenciaDoServidor.listaDePontuacaoUsuarios);
@@ -425,46 +382,59 @@ public class JogoDomino extends Thread implements Serializable{
 				}
 			}
 
-			jogada1=true;//Vai para a primeira jogada
-			referenciaDoServidor.fimDoJogo=false;//Diz que inicia um novo jogo
-			domino=new Domino();//Novo domino
-			pecasUtilizadas= new ArrayList<PecaDomino>();//Diz que nenhuma peça foi utilizada
-			referenciaDoServidor.jogoIniciado=false;//Sinaliza que o jogo não iniciou
-
+			//Sinaliza que não aconteceu a primeira jogada
+			jogada1=true;
+			//Sinaliza que iniciou um novo jogo, ou seja, diz que não é fim
+			referenciaDoServidor.fimDoJogo=false;
+			//Cria um novo Domino
+			domino=new Domino();
+			//Sinaliza que nenhuma peça foi utilizada
+			pecasUtilizadas= new ArrayList<PecaDomino>();
+			//Sinaliza que o jogo não iniciou
+			referenciaDoServidor.jogoIniciado=false;
 
 		}//while que reinicia jogo
 	}
 
-
+	//Ordena a Lista dos jogadores, ou seja, deixa em primeiro o que tiver o maior carroção
 	public void primeiroJogador(){
-		//aqui nao sabemos se são iguais os lados				
+		//aqui nao sabemos se são iguais os lados
+
+		//Guarda o índice do primeiro Jogador
 		int indiceDeQuemInicia=0;
+		//Pergunta se essa peça tem lados iguais
 		boolean iguais=pecaMaiorIguais(indiceDeQuemInicia);
 
-		//buscar a maior peça
+		//Busca a maior peça 
 		for (int i = 1; i < referenciaDoServidor.listaDeUsuarios.size(); i++) {
-			//Isso indica que os dois são iguais ou diferentes
+			//Indica que as duas peças comparadas são iguais ou diferentes
+			//,ou seja, pega o maior somatório
 			if(iguais==pecaMaiorIguais(i)){
 				if(somaDoisLados(i)>somaDoisLados(indiceDeQuemInicia)){
+					//Atualiza o índice do Jogador que inicia o jogo
 					indiceDeQuemInicia=i;
+					//Atualiza se a maior peça é Carroção ou Não
 					iguais=pecaMaiorIguais(indiceDeQuemInicia);
 				}
-
 			}
 			else{
-				//lados iguais na outra peça						
+				//Pegunta se a peça que irá comparar é carroção e a outra não						
 				if(iguais!=true&&pecaMaiorIguais(i)){
+					//Atualiza o índice do Jogador que inicia o jogo
 					indiceDeQuemInicia=i;
+					//Atualiza se a maior peça é Carroção ou Não
 					iguais=pecaMaiorIguais(indiceDeQuemInicia);
 				}
 			}
 		}
 
-		//colocar atrás da lista até o primeiro maior
+		//Coloca atrás da lista até o primeiro maior
 		for (int i = 0; i < indiceDeQuemInicia; i++) {
+			//Coloca o "TrataCliente" no final da Lista
 			TrataCliente aux= referenciaDoServidor.listaDeUsuarios.remove(i);
 			referenciaDoServidor.listaDeUsuarios.add(aux);
 
+			//Coloca o nome do Jogador no final da Lista
 			String auxNome=referenciaDoServidor.listaDeNomeUsuarios.remove(i);
 			referenciaDoServidor.listaDeNomeUsuarios.add(auxNome);
 
@@ -479,17 +449,18 @@ public class JogoDomino extends Thread implements Serializable{
 
 	}
 
+	//Soma os dois lados da maior peça do Jogador
 	public int somaDoisLados(int indice){
 		return referenciaDoServidor.listaDeUsuarios.get(indice).maiorPecaDoJogador().getLadoDireito()+
 		referenciaDoServidor.listaDeUsuarios.get(indice).maiorPecaDoJogador().getLadoEsquerdo();
 	}
 
-	//	indice do jogador e passado e retorna a maior peça 
+	//Retorna a maior peça do Jogador. O índice do jogador é passado como parâmentro  
 	public PecaDomino maiorPeca(int indice){
 		return referenciaDoServidor.listaDeUsuarios.get(indice).maiorPecaDoJogador();
 	}
 
-	//	indice do jogador e retorna se sua maior peça é igual
+	//Verifica se a maior peça do Jogador é Carroção ou Não. O índice do jogador é passado como parâmetro
 	public Boolean pecaMaiorIguais(int indice){
 		if(referenciaDoServidor.listaDeUsuarios.get(indice).maiorPecaDoJogador().getLadoDireito()==
 			referenciaDoServidor.listaDeUsuarios.get(indice).maiorPecaDoJogador().getLadoEsquerdo()	){
@@ -502,8 +473,12 @@ public class JogoDomino extends Thread implements Serializable{
 
 	//Verifica se o jogo está trancado
 	public Boolean estaTrancado(){
+		//Variável que contém o resultado do método
 		Boolean resultado=true;
+
+		//Verifica se todos jogadores passaram sua vez 
 		for(int i=0;i<referenciaDoServidor.listaDeUsuarios.size();i++){
+			//Se pelo menos um jogador não tiver passado então o jogo continua
 			if(!referenciaDoServidor.listaDeUsuarios.get(i).passouVez){
 				resultado=false;
 			}			
@@ -511,38 +486,38 @@ public class JogoDomino extends Thread implements Serializable{
 		return resultado;
 	}
 
-	//mostrar peças utilizadas
-	void mostrarPecasUtilizadas(){
+	//Mostra as peças utilizadas, ou seja, está na mesa
+	public void mostrarPecasUtilizadas(){
 		System.out.println("Peças utilizadas:");
 		for(int i=0; i<pecasUtilizadas.size();i++){
-			//para achar um jogador nao pronto
 			System.out.print(pecasUtilizadas.get(i).getLadoEsquerdo()+"|"+pecasUtilizadas.get(i).getLadoDireito()+" ");
 		}
 		System.out.println();
 	}
 
-	//monta uma peça com as peças possíveis
+	//Monta uma peça com os lados possíveis
 	public PecaDomino buscarPontasDasPecas(){
+		//Ponta do jogo
 		PecaDomino pecamontada;
 
+		//Verifica se tem mais de uma peça na mesa
 		if(pecasUtilizadas.size()>1){
-
-			//pegar a direita do último índice(size-1)
+			//Monta a peça com a esquerda do primeiro da lista da mesa
+			//e com a direita do último da lista de peças da mesa
 			pecamontada=new PecaDomino(pecasUtilizadas.get(pecasUtilizadas.size()-1).getLadoDireito(), pecasUtilizadas.get(0).getLadoEsquerdo());
-
 		}
-		else{//só tem uma peça
+		else{//Se tiver só tem uma peça na mesa
 			pecamontada=pecasUtilizadas.get(0);
 		}
 
-		//mostrar as pontas 
+		//Mostra as pontas 
 		System.out.println("Pontas: "+pecamontada.getLadoEsquerdo()+"|"+pecamontada.getLadoDireito());
 
 		return pecamontada;
 
 	}
 
-	//Mostra a pontuação atual de cada jogador
+	//Mostra a pontuação de cada um dos jogadores
 	public void mostrarPontuacao(){
 		System.out.println("Pontuações:");
 		for (int i = 0; i < referenciaDoServidor.listaDePontuacaoUsuarios.size()-1; i++) {
@@ -550,5 +525,5 @@ public class JogoDomino extends Thread implements Serializable{
 
 		}	
 	}
-	
+
 }

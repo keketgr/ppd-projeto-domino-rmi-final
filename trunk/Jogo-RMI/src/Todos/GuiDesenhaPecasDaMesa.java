@@ -1,7 +1,6 @@
 package Todos;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -12,10 +11,10 @@ import javax.swing.JPanel;
 
 public class GuiDesenhaPecasDaMesa extends JPanel implements MouseListener{
 
-	//peças que estão no centro da mesa
+	//Peças que estão no centro da mesa
 	private ArrayList <PecaDomino> pecasDaMesa;
 
-	//Referência da Classe ClienteThread que instanciou essa classa
+	//Referência da Classe ClienteThread, onde foi criado um objeto dele
 	ClienteThread cliente;
 
 	public GuiDesenhaPecasDaMesa( ClienteThread referencia) {
@@ -36,91 +35,94 @@ public class GuiDesenhaPecasDaMesa extends JPanel implements MouseListener{
 
 	public void paintComponent(Graphics g){
 
-
-		Dimension sz = getSize();
-
+		//Apaga o que tinha antes
 		g.setColor(Color.green);//a cor do proximo objeto
 		g.fillRect(0,0,this.getWidth(),this.getHeight());//cria o retangulo
 
+		//Muda a cor para escrever a letra desta cor 
 		g.setColor(Color.BLACK);
 		g.drawString("Peças que os jogadores utilizaram:", 0, 50);
 
 		int distancia=0;
-		//removendo as peças que estavam no Panel Anterior
+
+		//Remove todas as peças que estavam no Panel Anterior
 		this.removeAll();
 
 		this.addMouseListener(this);
 
+		//Adiciona cada um dos painéis das peças que estão na mesa
 		for(int i=0; i<pecasDaMesa.size(); i++){
 
+			//Cria um painel com o desenho de uma das Peça da mesa
 			GuiDesenhaUmDominoDaMesa umaPeca =new GuiDesenhaUmDominoDaMesa(pecasDaMesa.get(i),10,30);
+
+			//Local onde será adicionado o painel com o valor das peças
 			umaPeca.setBounds(5+distancia, 30+50,120, 80);
 
+			//Adiciona a peça a esse JPanel que é o central
 			this.add(umaPeca);
 
 			distancia=distancia+122;
 		}
 	}
 
-
-	@Override
+	//Trata o evento da escolha do lado a adicionar a peça
 	public void mouseClicked(MouseEvent e) {
 		System.out.println("GuiDesenhaPecasDaMesa: posição onde foi clicado:");
 		System.out.println("GuiDesenhaPecasDaMesa: X: "+e.getX()+", Y: "+e.getY());
 
-		//pergunta se tem somente uma peça 
+		//Pergunta se tem somente uma peça 
 		if(pecasDaMesa.size()==1){
-			//pegar a metade da 1 peça
+			//Pega a metade da 1 peça
 			if(e.getX()>5&&e.getX()<65&&e.getY()>80&&e.getY()<160){
+				//Atualiza o valor da variável lado a jogar
 				cliente.ladoAJogar="Esquerdo";				
-				////cliente.enviarMsg("Escolhi peça!");
-				
+
 				try {
+					//Avisa o servidor o lado escolhido
 					cliente.serv.recebeLadoAJogar("Esquerdo");
 				} catch (RemoteException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
 			}
 
-			//seleciona o lado direito da peça mais a direita
+			//Seleciona o lado direito da peça mais a direita
 			if(e.getX()>65&&e.getX()<125&&e.getY()>80&&e.getY()<160){
+				//Atualiza o valor da variável lado a jogar
 				cliente.ladoAJogar="Direito";		
-				////cliente.enviarMsg("Escolhi peça!");
-				
+
 				try {
+					//Avisa o servidor o lado escolhido
 					cliente.serv.recebeLadoAJogar("Direito");
 				} catch (RemoteException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
 		}
 		else{
 			if(pecasDaMesa.size()>1){
-				//seleciona o lado esquerdo da peça mais a esquerda
+				//Seleciona o lado esquerdo da peça mais a esquerda
 				if(e.getX()>5&&e.getX()<65&&e.getY()>80&&e.getY()<160){
+					//Atualiza o valor da variável lado a jogar
 					cliente.ladoAJogar="Esquerdo";	
-					////cliente.enviarMsg("Escolhi peça!");
-					
+
 					try {
+						//Avisa o servidor o lado escolhido
 						cliente.serv.recebeLadoAJogar("Esquerdo");
 					} catch (RemoteException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
 
-				//seleciona o lado direito da peça mais a direita
+				//Seleciona o lado direito da peça mais a direita
 				if(e.getX()>(5+122*(pecasDaMesa.size()-1)+60)&&e.getX()<(5+122*(pecasDaMesa.size()-1)+120)&&e.getY()>80&&e.getY()<160){
+					//Atualiza o valor da variável lado a jogar
 					cliente.ladoAJogar="Direito";	
-					////cliente.enviarMsg("Escolhi peça!");
-					
+
 					try {
+						//Avisa o servidor o lado escolhido
 						cliente.serv.recebeLadoAJogar("Direito");
 					} catch (RemoteException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}				
@@ -131,31 +133,12 @@ public class GuiDesenhaPecasDaMesa extends JPanel implements MouseListener{
 	}
 
 
-	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+	public void mouseEntered(MouseEvent e) {}
 
-	}
+	public void mouseExited(MouseEvent e)  {}
 
+	public void mousePressed(MouseEvent e) {}
 
-	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-
-	@Override
-	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-
-	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
+	public void mouseReleased(MouseEvent e){}
 
 }
