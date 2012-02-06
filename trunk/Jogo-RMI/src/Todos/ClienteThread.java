@@ -34,6 +34,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -118,6 +119,9 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 	Boolean servidorLotado=false;
 
+	//Pontuação do jogador
+	Pontuacao pontucaoJogadoresDoJogo;
+	
 	public ClienteThread() throws RemoteException{
 
 		super();
@@ -230,6 +234,33 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		jogar.addActionListener(this);  
 		painelDeConteudo.add(jogar);
 
+		pontucaoJogadoresDoJogo=new Pontuacao(new ArrayList<String>(),new ArrayList<Integer>());;
+		pontucaoJogadoresDoJogo.setLayout(null);
+		
+//		JLabel pont = new JLabel("Pontuação: ");
+//		pont.setBounds(0,0,70,30);
+//		
+//		JLabel jog1 = new JLabel("Jogador1: ");
+//		jog1.setBounds(80,0,100,30);
+//		pontucaoJogadoresDoJogo.add(jog1);
+//
+//		JLabel jog2 = new JLabel("Jogador2: ");
+//		jog2.setBounds(200,0,100,30);
+//		pontucaoJogadoresDoJogo.add(jog2);
+//
+//		JLabel jog3 = new JLabel("Jogador3: ");
+//		jog3.setBounds(320,0,100,30);
+//		pontucaoJogadoresDoJogo.add(jog3);
+//
+//		JLabel jog4 = new JLabel("Jogador4: ");
+//		jog4.setBounds(440,0,100,30);
+//		pontucaoJogadoresDoJogo.add(jog4);
+//		
+//		pontucaoJogadoresDoJogo.add(pont);
+		
+		pontucaoJogadoresDoJogo.setBounds(260,22,600,25);
+		painelDeConteudo.add(pontucaoJogadoresDoJogo);
+		
 		frame.setVisible(true);
 
 	}
@@ -1279,11 +1310,15 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		serv.enviaATodosClientes(nomeJogador+": Comprei uma peça.");
 	}
 
-	public void atualizaGUI(ArrayList <PecaDomino> pecaDaMesaLocal) throws RemoteException {
+	public void atualizaGUI(ArrayList <PecaDomino> pecaDaMesaLocal,ArrayList<String> nomesDosJogadores,ArrayList<Integer> pontuacoesJogadores) throws RemoteException {
 		//Recebe um ArrayList de Peças que estão na mesa
 
 		System.out.println("Cliente: "+nomeJogador+" Recebeu as peças da Mesa");
-
+		
+		pontucaoJogadoresDoJogo.nomeJogador=nomesDosJogadores;
+		pontucaoJogadoresDoJogo.pontosJogador=pontuacoesJogadores;
+		pontucaoJogadoresDoJogo.repaint();
+		
 		pecasDaMesa=pecaDaMesaLocal;
 
 		mostrarPecasDaMesa();//Imprime no console as peças recebidas	

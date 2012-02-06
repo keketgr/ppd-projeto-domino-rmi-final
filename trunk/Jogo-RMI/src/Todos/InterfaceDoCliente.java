@@ -3,6 +3,8 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
+import javax.swing.JPanel;
+
 import Todos.PecaDomino;
 
 //Serviços disponíveis ao cliente
@@ -39,7 +41,7 @@ public interface InterfaceDoCliente extends Remote{
 	void puxaUmaPeca(PecaDomino p) throws RemoteException;
 
 	//Atualiza a GUI do Cliente
-	void atualizaGUI(ArrayList<PecaDomino> a) throws RemoteException;
+	void atualizaGUI(ArrayList<PecaDomino> a, ArrayList<String> nomeJog, ArrayList<Integer> pontoJog) throws RemoteException;
 
 	//Habilita o botão de pronto para jogar uma nova partida
 	void habilitaPronto() throws RemoteException;

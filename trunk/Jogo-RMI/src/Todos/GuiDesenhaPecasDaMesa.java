@@ -126,7 +126,7 @@ public class GuiDesenhaPecasDaMesa extends JPanel implements MouseListener{
 				}				
 			}
 		}
-
+		cliente.colorePecasPossiveis();
 
 	}
 
