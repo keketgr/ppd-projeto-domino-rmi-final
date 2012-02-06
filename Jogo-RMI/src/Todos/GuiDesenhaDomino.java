@@ -22,6 +22,7 @@ public class GuiDesenhaDomino extends JPanel{
 		desenhosDomino= new ArrayList<GuiDesenhaUmDomino>();
 	}
 	public void paintComponent(Graphics g){
+		System.out.println("Atualizou a tela do jogador");
 
 		Dimension sz = getSize();
 

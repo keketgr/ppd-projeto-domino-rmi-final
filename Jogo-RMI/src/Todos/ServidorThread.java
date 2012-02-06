@@ -31,7 +31,10 @@ public class ServidorThread extends UnicastRemoteObject implements Runnable, Int
 	//lista que contém todos os usuários que estão utilizando o servidor
 	ArrayList <String> listaDeNomeUsuarios ;
 	ArrayList <TrataCliente> listaDeUsuarios ;
-
+	//Lista com a pontuação de todos jogadores
+	ArrayList<Integer> listaDePontuacaoUsuarios;
+	//JPanel que contém os valores da pontuação dos jogadores
+	//Pontuacao pontucaoJog;
 
 
 	//String com conteudo
@@ -57,6 +60,8 @@ public class ServidorThread extends UnicastRemoteObject implements Runnable, Int
 	public ServidorThread(GuiServidor g) throws RemoteException{
 
 		super();
+
+
 
 		referenciaGuiServ=g;
 		//trocar porta por 5080
@@ -86,6 +91,11 @@ public class ServidorThread extends UnicastRemoteObject implements Runnable, Int
 		//a instância da lista de usuários
 		listaDeNomeUsuarios= new ArrayList <String>();
 		listaDeUsuarios= new ArrayList <TrataCliente>();
+		listaDePontuacaoUsuarios=new ArrayList<Integer>();
+
+		//pontucaoJog=new Pontuacao(listaDeNomeUsuarios, listaDePontuacaoUsuarios);
+
+
 		//try {
 		////Socket cliente;
 
@@ -153,6 +163,7 @@ public class ServidorThread extends UnicastRemoteObject implements Runnable, Int
 			//coloca essa comunicação com esse usuário na lista de usuários
 			listaDeNomeUsuarios.add(a);
 			listaDeUsuarios.add(new TrataCliente(a,this));
+			listaDePontuacaoUsuarios.add(0);
 		}
 		else{
 			if(jogoIniciado==true){
@@ -252,15 +263,23 @@ public class ServidorThread extends UnicastRemoteObject implements Runnable, Int
 	public void ganhouJogo(String a,String nomeJogador) throws RemoteException {
 
 		if(a.equals("venceu essa rodada!")){
-			
 
+			System.out.println("Entrou no método ganhouJogo");
 			for (int i = 0; i < listaDeNomeUsuarios.size(); i++) {
+				System.out.println(listaDeNomeUsuarios.get(i));
+				if(nomeJogador.equals(listaDeNomeUsuarios.get(i))){
+					System.out.println("Entrou atualizar pontuação: somar +1");
+					Integer auxp =listaDePontuacaoUsuarios.get(i);
+					listaDePontuacaoUsuarios.add(i,auxp+1);
+					System.out.println("Atualizei pontuação");
+				}
+
 				try {
 					InterfaceDoCliente cl =  (InterfaceDoCliente)Naming.lookup("//localhost/"+listaDeNomeUsuarios.get(i));
 					cl.recebeMensagemDoChat(nomeJogador+" "+a);
 					cl.recebeString(nomeJogador+" "+a);
 					//cl.atualizaGUI(jogo.pecasUtilizadas);
-					
+
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -272,12 +291,12 @@ public class ServidorThread extends UnicastRemoteObject implements Runnable, Int
 					e.printStackTrace();
 				}
 			}
-			
+
 			fimDoJogo=true;
 			//jogo.stop();
 		}
 		else{
-		System.out.println("Jogador jogou, mas não ganhou jogo");
+			System.out.println("Jogador jogou, mas não ganhou jogo");
 		}
 	}
 

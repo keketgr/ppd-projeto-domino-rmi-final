@@ -177,7 +177,7 @@ public class JogoDomino extends Thread implements Serializable{
 								referenciaDoServidor.jogo.pecasUtilizadas.add(p1);}
 
 							//isso tem que ser para todos clientes
-							cli.atualizaGUI(referenciaDoServidor.jogo.pecasUtilizadas);
+							cli.atualizaGUI(referenciaDoServidor.jogo.pecasUtilizadas,referenciaDoServidor.listaDeNomeUsuarios,referenciaDoServidor.listaDePontuacaoUsuarios);
 
 
 						} catch (MalformedURLException e) {
@@ -218,7 +218,7 @@ public class JogoDomino extends Thread implements Serializable{
 							//tem que ser para todos clientes
 							for (int i = 0; i < referenciaDoServidor.listaDeNomeUsuarios.size(); i++) {
 								InterfaceDoCliente cli2 = (InterfaceDoCliente)Naming.lookup("//localhost/"+referenciaDoServidor.listaDeNomeUsuarios.get(i));
-								cli2.atualizaGUI(referenciaDoServidor.jogo.pecasUtilizadas);
+								cli2.atualizaGUI(referenciaDoServidor.jogo.pecasUtilizadas,referenciaDoServidor.listaDeNomeUsuarios,referenciaDoServidor.listaDePontuacaoUsuarios);
 							}
 
 
@@ -255,7 +255,7 @@ public class JogoDomino extends Thread implements Serializable{
 								//tem que ser para todos clientes
 								for (int i = 0; i < referenciaDoServidor.listaDeNomeUsuarios.size(); i++) {
 									InterfaceDoCliente cli2 = (InterfaceDoCliente)Naming.lookup("//localhost/"+referenciaDoServidor.listaDeNomeUsuarios.get(i));
-									cli2.atualizaGUI(referenciaDoServidor.jogo.pecasUtilizadas);
+									cli2.atualizaGUI(referenciaDoServidor.jogo.pecasUtilizadas,referenciaDoServidor.listaDeNomeUsuarios,referenciaDoServidor.listaDePontuacaoUsuarios);
 								}
 								jogadorAtualJogou=true;
 							}
@@ -332,6 +332,14 @@ public class JogoDomino extends Thread implements Serializable{
 										" ganhou jogo, pois ele só possui o somatório de "+
 										referenciaDoServidor.listaDeUsuarios.get(quemGanhouJogo).somaDasPecasAposJogoTrancado);
 
+							
+									System.out.println("Entrou atualizar pontuação: somar +1");
+									Integer auxp =referenciaDoServidor.listaDePontuacaoUsuarios.get(quemGanhouJogo);
+									referenciaDoServidor.listaDePontuacaoUsuarios.add(quemGanhouJogo,auxp+1);
+									System.out.println("Atualizei pontuação");
+								
+
+								
 								//Fim do jogo
 								referenciaDoServidor.fimDoJogo=true;
 							} catch (RemoteException e) {
@@ -354,6 +362,9 @@ public class JogoDomino extends Thread implements Serializable{
 					//Coloca o jogador no final da fila
 					referenciaDoServidor.listaDeUsuarios.add( referenciaDoServidor.listaDeUsuarios.remove(0));
 					referenciaDoServidor.listaDeNomeUsuarios.add( referenciaDoServidor.listaDeNomeUsuarios.remove(0));
+
+					//Atualiza pontuação também
+					referenciaDoServidor.listaDePontuacaoUsuarios.add(referenciaDoServidor.listaDePontuacaoUsuarios.remove(0));
 
 					//				//Sinaliza que o jogo terminou
 					//				if(referenciaDoServidor.fimDoJogo==true){
@@ -378,6 +389,9 @@ public class JogoDomino extends Thread implements Serializable{
 
 			}//while(fim de um jogo)
 
+			//Mostra a pontuação atual
+		//	mostrarPontuacao();
+
 			System.out.println("Acabou o Jogo!!!");
 			referenciaDoServidor.referenciaGuiServ.escreverNoTexto("Acabou o Jogo!!!");
 
@@ -399,7 +413,7 @@ public class JogoDomino extends Thread implements Serializable{
 					//Habilita o checkbox para uma nova rodada
 					cli.habilitaPronto();
 					//Apaga a mesa do cliente
-					cli.atualizaGUI(new ArrayList<PecaDomino>());
+					cli.atualizaGUI(new ArrayList<PecaDomino>(),referenciaDoServidor.listaDeNomeUsuarios,referenciaDoServidor.listaDePontuacaoUsuarios);
 					//Apaga as peças do jogador
 					cli.recebe7Pecas(new ArrayList<PecaDomino>());
 				} catch (MalformedURLException e) {
@@ -453,6 +467,10 @@ public class JogoDomino extends Thread implements Serializable{
 
 			String auxNome=referenciaDoServidor.listaDeNomeUsuarios.remove(i);
 			referenciaDoServidor.listaDeNomeUsuarios.add(auxNome);
+
+			//Atualiza o valor da pontuação também
+			Integer auxPont=referenciaDoServidor.listaDePontuacaoUsuarios.remove(i);
+			referenciaDoServidor.listaDePontuacaoUsuarios.add(auxPont);
 		}
 
 		System.out.println("Maior Peça entre os jogadores:"+referenciaDoServidor.listaDeUsuarios.get(0).maiorPecaDoJogador().getLadoDireito()+"|"+
@@ -523,4 +541,14 @@ public class JogoDomino extends Thread implements Serializable{
 		return pecamontada;
 
 	}
+
+	//Mostra a pontuação atual de cada jogador
+	public void mostrarPontuacao(){
+		System.out.println("Pontuações:");
+		for (int i = 0; i < referenciaDoServidor.listaDePontuacaoUsuarios.size()-1; i++) {
+			System.out.println(referenciaDoServidor.listaDeNomeUsuarios.get(i)+": "+referenciaDoServidor.listaDePontuacaoUsuarios.get(i));
+
+		}	
+	}
+	
 }
