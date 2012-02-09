@@ -12,15 +12,19 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Vector;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -96,6 +100,11 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 	//Pontuação dos jogadores 
 	Pontuacao pontucaoJogadoresDoJogo;
+	
+	ArrayList<String> nomeJogadoresNoServidor;
+	
+	//Combobox com que enviar do chat
+	public JComboBox combo;
 
 	public ClienteThread() throws RemoteException{
 
@@ -104,7 +113,10 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 		pecasJogador=new ArrayList <PecaDomino>();
 
 		pecasDaMesa=new ArrayList <PecaDomino>();
-
+		
+		nomeJogadoresNoServidor = new ArrayList<String>();
+		nomeJogadoresNoServidor.add("Todos");
+		
 		//Recebe o nome do usuário que ficará no título do Frame
 		nomeJogador=JOptionPane.showInputDialog("Escolha o nome do usuário","jogador");
 		//Coloca os valores do ip e porta do servidor que irá conectar
@@ -205,9 +217,14 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 		pontucaoJogadoresDoJogo=new Pontuacao(new ArrayList<String>(),new ArrayList<Integer>());;
 		pontucaoJogadoresDoJogo.setLayout(null);		
-		pontucaoJogadoresDoJogo.setBounds(260,22,600,25);
+		pontucaoJogadoresDoJogo.setBounds(260,22,900,25);
 		painelDeConteudo.add(pontucaoJogadoresDoJogo);
-
+		
+		combo = new JComboBox(new DefaultComboBoxModel( nomeJogadoresNoServidor.toArray()));
+		combo.setLayout(null);
+		combo.setBounds(900,435,100,30);
+		painelDeConteudo.add(combo);
+		
 		frame.setVisible(true);
 
 	}
@@ -402,9 +419,21 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 			System.out.println("ClienteThread: "+nomeJogador+" enviou ao servidor o campo - "+valorTextField);
 
 			try {
+				String usuario= (String) combo.getSelectedItem();
+				if(usuario.equals("Todos")){
 				//Envia a todos jogadores o valor que está no chat
-				serv.enviaATodosClientes(nomeJogador+": "+valorTextField);
+				serv.enviaATodosClientes(nomeJogador+": "+valorTextField);}
+				else{
+					InterfaceDoCliente cli = (InterfaceDoCliente)Naming.lookup("//localhost/"+usuario);
+					cli.recebeMensagemDoChat(nomeJogador+": "+valorTextField);
+					recebeMensagemDoChat(nomeJogador+": "+valorTextField);
+					
+				}
 			} catch (RemoteException e1) {
+				e1.printStackTrace();
+			} catch (MalformedURLException e1) {
+				e1.printStackTrace();
+			} catch (NotBoundException e1) {
 				e1.printStackTrace();
 			}
 		}
@@ -764,11 +793,29 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 	public void atualizaGUI(ArrayList <PecaDomino> pecaDaMesaLocal,ArrayList<String> nomesDosJogadores,ArrayList<Integer> pontuacoesJogadores) throws RemoteException {
 		//Recebe um ArrayList de Peças que estão na mesa
 
+		
+		
 		System.out.println("Cliente: "+nomeJogador+" Recebeu as peças da Mesa");
 
 		pontucaoJogadoresDoJogo.nomeJogador=nomesDosJogadores;
 		pontucaoJogadoresDoJogo.pontosJogador=pontuacoesJogadores;
 		pontucaoJogadoresDoJogo.repaint();
+		
+		
+		while(nomeJogadoresNoServidor.size()>1) {
+			nomeJogadoresNoServidor.remove(0);
+		}
+		Vector noms=new Vector();
+		noms.add("Todos");
+		for (int i = 0; i < nomesDosJogadores.size(); i++) {
+			noms.add(nomesDosJogadores.get(i));
+		}
+//		nomeJogadoresNoServidor=nomesDosJogadores;
+//		nomeJogadoresNoServidor.add(0, "Todos");
+		
+      // Vector noms[]=(Vector)nomesDosJogadores;
+		//combo.removeAll();
+		combo.setModel(new DefaultComboBoxModel(noms));
 
 		pecasDaMesa=pecaDaMesaLocal;
 

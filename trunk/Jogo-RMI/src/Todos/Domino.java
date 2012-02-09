@@ -15,9 +15,9 @@ public class Domino {
 		todasPecas.add(new PecaDomino(0, 3));	//04
 		todasPecas.add(new PecaDomino(0, 4));	//05
 		todasPecas.add(new PecaDomino(0, 5));	//06
-//		todasPecas.add(new PecaDomino(0, 6));	//07
-//		todasPecas.add(new PecaDomino(1, 1));	//08
-//		todasPecas.add(new PecaDomino(1, 2));	//09
+		todasPecas.add(new PecaDomino(0, 6));	//07
+		todasPecas.add(new PecaDomino(1, 1));	//08
+		todasPecas.add(new PecaDomino(1, 2));	//09
 //		todasPecas.add(new PecaDomino(1, 3));	//10
 //		todasPecas.add(new PecaDomino(1, 4));	//11
 //		todasPecas.add(new PecaDomino(1, 5));	//12
