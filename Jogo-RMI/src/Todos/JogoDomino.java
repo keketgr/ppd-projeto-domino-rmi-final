@@ -205,6 +205,9 @@ public class JogoDomino extends Thread implements Serializable{
 							//Não tendo peça pra puxar e não tiver recebido uma peça
 							if(p1==null&&domino.todasPecas.size()==0){
 								System.out.println(jogadorAtual.nomeUsuario+" passou sua vez");
+								
+								referenciaDoServidor.enviaATodosClientes(jogadorAtual.nomeUsuario+" passou sua vez");
+								
 								//Sinaliza que o Jogador passou sua vez
 								jogadorAtual.passouVez=true;
 								//Sinaliza que o jogador fez sua jogada
@@ -220,6 +223,8 @@ public class JogoDomino extends Thread implements Serializable{
 									//Adiciona a peça no fim da lista, ou seja, no lado direito da lista
 									referenciaDoServidor.jogo.pecasUtilizadas.add(p1); 
 								}
+								
+								referenciaDoServidor.enviaATodosClientes(jogadorAtual.nomeUsuario+" jogou a peça: "+p1.getLadoEsquerdo()+"|"+p1.getLadoDireito());
 
 								System.out.println("Adicionou peça na mesa");
 

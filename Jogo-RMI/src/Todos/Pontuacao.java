@@ -56,7 +56,7 @@ public class Pontuacao extends JPanel{
 
 	//Mostra o valor da pontuação dos jogadores
 	public void mostrarPontuacao(){
-		for (int i = 0; i < nomeJogador.size(); i++) {
+		for (int i = 0; i < nomeJogador.size()-1; i++) {
 			System.out.println("Nome do jogador: "+nomeJogador.get(i)+" Pontos Jogador: "+pontosJogador.get(i));
 		}
 	}
