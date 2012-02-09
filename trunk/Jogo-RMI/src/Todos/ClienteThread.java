@@ -260,26 +260,28 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 
 
 		if(ladoAJogar.equals("Esquerdo")){
-			JOptionPane.showMessageDialog(null,"Você escolheu lado "+ladoAJogar);
+			//JOptionPane.showMessageDialog(null,"Você escolheu lado "+ladoAJogar);
 			if(pecasJogador.get(pecaSelecionada).getLadoDireito()==p.getLadoEsquerdo()||
 					pecasJogador.get(pecaSelecionada).getLadoEsquerdo()==p.getLadoEsquerdo()){
 				return true;
 			}
 			else{
 				ladoAJogar="";
-				JOptionPane.showMessageDialog(null,"Não pode jogar no lado Esquerdo!");}
+				//JOptionPane.showMessageDialog(null,"Não pode jogar no lado Esquerdo!");
+			}
 			return false;
 		}
 		else{
 			if(ladoAJogar.equals("Direito")){
-				JOptionPane.showMessageDialog(null,"Você escolheu lado "+ladoAJogar);
+				//	JOptionPane.showMessageDialog(null,"Você escolheu lado "+ladoAJogar);
 				if(pecasJogador.get(pecaSelecionada).getLadoDireito()==p.getLadoDireito()||
 						pecasJogador.get(pecaSelecionada).getLadoEsquerdo()==p.getLadoDireito()){
 					return true;
 				}
 				else{
 					ladoAJogar="";
-					JOptionPane.showMessageDialog(null,"Não pode jogar no lado Direito!");}
+					//	JOptionPane.showMessageDialog(null,"Não pode jogar no lado Direito!");
+				}
 				return false;
 			}
 			else{//lado nao selecionado
@@ -801,10 +803,10 @@ public class ClienteThread extends UnicastRemoteObject implements Runnable, Inte
 			somaPecas=somaPecas+pecasJogador.get(i).getLadoDireito()+pecasJogador.get(i).getLadoEsquerdo();
 		}
 		System.out.println("Somatório das peças desse jogador: "+somaPecas);
-		
+
 		//Avisa a todos o valor da soma das suas peças 
 		serv.enviaATodosClientes(nomeJogador+": Soma das minhas peças = "+somaPecas);
-		
+
 		//Envia a quantidade da soma das peças ao servidor
 		return somaPecas;
 	}
