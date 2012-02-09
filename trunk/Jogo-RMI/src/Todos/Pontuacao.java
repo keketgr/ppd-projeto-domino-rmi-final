@@ -51,5 +51,13 @@ public class Pontuacao extends JPanel{
 			pontJogador.setBounds(80+120*i,0,100,30);
 			this.add(pontJogador);
 		}
+		mostrarPontuacao();
+	}
+
+	//Mostra o valor da pontuação dos jogadores
+	public void mostrarPontuacao(){
+		for (int i = 0; i < nomeJogador.size(); i++) {
+			System.out.println("Nome do jogador: "+nomeJogador.get(i)+" Pontos Jogador: "+pontosJogador.get(i));
+		}
 	}
 }

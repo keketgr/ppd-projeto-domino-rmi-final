@@ -315,7 +315,7 @@ public class JogoDomino extends Thread implements Serializable{
 
 								System.out.println("Entrou atualizar pontuação: somar +1");
 								//Obtem o valor da pontuação do Jogador que ganhou o jogo 
-								Integer auxp =referenciaDoServidor.listaDePontuacaoUsuarios.get(quemGanhouJogo);
+								Integer auxp =referenciaDoServidor.listaDePontuacaoUsuarios.remove(quemGanhouJogo);
 								//Incrementa a pontuação do Jogador que ganhou o jogo 
 								referenciaDoServidor.listaDePontuacaoUsuarios.add(quemGanhouJogo,auxp+1);
 								System.out.println("Atualizei pontuação");
