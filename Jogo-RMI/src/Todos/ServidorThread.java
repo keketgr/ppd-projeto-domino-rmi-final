@@ -11,6 +11,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
 
 
 
@@ -49,6 +51,8 @@ public class ServidorThread extends UnicastRemoteObject implements Runnable, Int
 		try {
 			System.out.println("Registrará o servidor.");
 
+			nomeServidor=JOptionPane.showInputDialog("Escolha o nome do Servidor:","Servidor");
+			
 			//Registra o Servidor no servidor de nomes
 			Naming.rebind(nomeServidor,(Remote) this);
 
